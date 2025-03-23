@@ -1,0 +1,27 @@
+/* Price Slider */
+.slider-container {
+    padding: 0 15px;
+}
+.form-range::-webkit-slider-thumb {
+    background-color: #28a745;
+}
+.form-range::-moz-range-thumb {
+    background-color: #28a745;
+}
+
+/* Wishlist Animation */
+.wishlist-btn i {
+    transition: transform 0.3s ease;
+}
+.wishlist-btn:hover i {
+    transform: scale(1.2);
+}
+
+/* Product Card Hover */
+.product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+}

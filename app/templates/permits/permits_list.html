@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-clipboard-check"></i> Environmental Compliance Permits</h2>
+            <div class="float-right">
+                <a href="{{ url_for('routes.new_permit') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> New Permit Application
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-list-ol"></i> Active Permits</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Permit ID</th>
+                            <th>Applicant</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Issued Date</th>
+                            <th>Expiry Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for permit in permits %}
+                        <tr>
+                            <td>PER-{{ "%04d" % permit.id }}</td>
+                            <td>{{ permit.applicant.username }}</td>
+                            <td>{{ permit.permit_type|replace('_', ' ')|title }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if permit.status == 'approved' %}badge-success
+                                    {% elif permit.status == 'rejected' %}badge-danger
+                                    {% else %}badge-warning{% endif %}">
+                                    {{ permit.status|title }}
+                                </span>
+                            </td>
+                            <td>{{ permit.issued_date.strftime('%Y-%m-%d') if permit.issued_date else 'N/A' }}</td>
+                            <td>{{ permit.expiry_date.strftime('%Y-%m-%d') if permit.expiry_date else 'N/A' }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-success" 
+                                            data-toggle="modal" 
+                                            data-target="#detailModal{{ permit.id }}">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    {% if current_user.user_type == 'agent' %}
+                                    <a href="{{ url_for('review_permit', permit_id=permit.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for permit in permits %}
+<!-- Detail Modal -->
+<div class="modal fade" id="detailModal{{ permit.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Permit Details: PER-{{ "%04d" % permit.id }}</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Applicant Information</h6>
+                        <p>
+                            <strong>Name:</strong> {{ permit.applicant.username }}<br>
+                            <strong>Farm Size:</strong> {{ permit.applicant.farm_size }} ha<br>
+                            <strong>Location:</strong> {{ permit.applicant.location }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Permit Details</h6>
+                        <p>
+                            <strong>Type:</strong> {{ permit.permit_type|replace('_', ' ')|title }}<br>
+                            <strong>Applied On:</strong> {{ permit.application_date.strftime('%Y-%m-%d') }}<br>
+                            <strong>Status:</strong> {{ permit.status|title }}
+                        </p>
+                    </div>
+                </div>
+                <hr>
+                <h6>Environmental Impact Assessment</h6>
+                <p>{{ permit.impact_assessment or 'No assessment submitted' }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                {% if current_user.user_type == 'agent' %}
+                <a href="{{ url_for('review_permit', permit_id=permit.id) }}" 
+                   class="btn btn-success">
+                    <i class="fas fa-file-signature"></i> Process Permit
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

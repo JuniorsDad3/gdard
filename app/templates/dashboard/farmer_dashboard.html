@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        {% include 'dashboard/farmer/sidebar.html' %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Farm Management Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#newTaskModal">
+                            <i class="fas fa-plus"></i> New Task
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h5 class="card-title">Active Products</h5>
+                            <h2 class="card-text">{{ current_user.products|length }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-info">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Sales</h5>
+                            <h2 class="card-text">R{{ total_sales|default(0) }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Chart -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Sales Trends</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" width="400" height="150"></canvas>
+                </div>
+            </div>
+
+            <!-- Task Management -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-tasks"></i> Recent Tasks</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in tasks %}
+                                <tr>
+                                    <td>{{ task.title }}</td>
+                                    <td>{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'No deadline' }}</td>
+                                    <td>
+                                        <span class="badge {{ 'bg-success' if task.completed else 'bg-warning' }}">
+                                            {{ 'Completed' if task.completed else 'Pending' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-success" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editTaskModal{{ task.id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- New Task Modal -->
+<div class="modal fade" id="newTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Create New Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('routes.farmer_tasks') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Task Title</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" class="form-control" name="due_date">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Sales Chart
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ sales_labels|tojson }},
+            datasets: [{
+                label: 'Daily Sales',
+                data: {{ sales_data|tojson }},
+                borderColor: '#28a745',
+                tension: 0.1
+            }]
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

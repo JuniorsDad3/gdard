@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        {% include 'dashboard/buyer/sidebar.html' %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Buyer Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search orders...">
+                        <button class="btn btn-success" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Orders</h5>
+                            <h2 class="card-text">15</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-warning">
+                        <div class="card-body">
+                            <h5 class="card-title">Pending Deliveries</h5>
+                            <h2 class="card-text">3</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order History Table -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Recent Orders</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Product</th>
+                                    <th>Farmer</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr class="clickable-row" data-href="{{ url_for('routes.order_detail', order_id=order.id) }}">
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.product.name }}</td>
+                                    <td>{{ order.product.farmer.username }}</td>
+                                    <td>{{ order.quantity }} kg</td>
+                                    <td>R{{ order.total }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if order.status == 'delivered' %}bg-success
+                                            {% elif order.status == 'pending' %}bg-warning
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ order.status|title }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Make table rows clickable
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', () => {
+            window.location = row.dataset.href;
+        });
+    });
+</script>
+{% endblock %}
