@@ -171,7 +171,6 @@ python-socketio==5.12.1
 pythonnet==3.0.5
 pytz==2024.2
 pyunormalize==15.1.0
-pywin32==308
 PyYAML==6.0.1
 pyzmq==26.2.1
 referencing==0.33.0
