@@ -183,15 +183,6 @@ def dashboard():
     flash("Unauthorized user type!", "danger")
     return redirect(url_for('routes.index'))
 
-
-@routes_bp.route('/marketplace')
-def marketplace():
-    products = [Product(**row) for row in Product.all()]
-    categories = sorted({p.category for p in products})
-    return render_template('marketplace.html',
-                           products=products,
-                           categories=categories)
-
 @routes_bp.route('/wishlist/add/<int:product_id>', methods=['POST'])
 @login_required
 def add_to_wishlist(product_id):
