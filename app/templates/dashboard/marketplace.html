@@ -51,7 +51,7 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="productGrid">
                 {% for product in products %}
                 <div class="col">
-                    <div class="card h-100 product-card">
+                    <div class="card h-100 product-card" id="product-{{ product.id }}">
                         <img src="{{ product.image_url or 'https://via.placeholder.com/300' }}" 
                              class="card-img-top" 
                              alt="{{ product.name }}">
@@ -67,11 +67,18 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="card-footer bg-transparent">
+                        <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
                             <button class="btn btn-success btn-block" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#productModal{{ product.id }}">
                                 <i class="fas fa-cart-plus"></i> Add to Cart
+                            </button>
+
+                            <!-- Wishlist Button inside product card -->
+                            <button class="btn btn-outline-danger wishlist-btn ms-2" 
+                                    data-product-id="{{ product.id }}"
+                                    onclick="toggleWishlist(this)">
+                                <i class="{{ 'fas' if product.in_wishlist else 'far' }} fa-heart"></i>
                             </button>
                         </div>
                     </div>
@@ -94,20 +101,27 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <img src="{{ product.image_url }}" class="img-fluid rounded" alt="{{ product.name }}">
+                        <img src="{{ product.image_url or 'https://via.placeholder.com/300' }}" class="img-fluid rounded" alt="{{ product.name }}">
                     </div>
                     <div class="col-md-6">
                         <p>{{ product.description }}</p>
                         <p><strong>Farmer:</strong> {{ product.farmer.username }}</p>
-                        <p><strong>Available:</strong> {{ product.quantity }} kg</p>
+                        <p><strong>Available:</strong> <span class="available-quantity">{{ product.quantity }}</span> kg</p>
                         <input type="number" class="form-control mb-3" 
                                value="1" min="1" max="{{ product.quantity }}">
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer d-flex justify-content-between align-items-center">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success">Add to Cart</button>
+
+                <!-- Wishlist Button inside modal -->
+                <button class="btn btn-outline-danger wishlist-btn ms-2" 
+                        data-product-id="{{ product.id }}"
+                        onclick="toggleWishlist(this)">
+                    <i class="{{ 'fas' if product.in_wishlist else 'far' }} fa-heart"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -121,24 +135,24 @@
         const minPrice = document.getElementById('minPrice').value;
         const maxPrice = document.getElementById('maxPrice').value;
         
-        // Implement filter logic
+        // Implement filter logic (you can send data to backend or filter client-side)
         console.log('Applying filters:', { category, minPrice, maxPrice });
     }
-</script>
-<!-- Price Range Slider -->
-<div class="mb-3">
-    <label class="form-label">Price Range</label>
-    <div class="slider-container">
-        <input type="range" class="form-range" id="priceSlider" min="0" max="1000" step="10">
-        <div class="d-flex justify-content-between">
-            <span id="minPriceDisplay">R0</span>
-            <span id="maxPriceDisplay">R1000</span>
-        </div>
-    </div>
-</div>
 
-<!-- Real-time Updates Script -->
-<script>
+    function toggleWishlist(button) {
+        const productId = button.dataset.productId;
+        fetch(`/wishlist/add/${productId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const icon = button.querySelector('i');
+                    icon.classList.toggle('far');
+                    icon.classList.toggle('fas');
+                }
+            });
+    }
+
+    // Real-time Updates Script
     const eventSource = new EventSource('/marketplace/updates');
     eventSource.onmessage = function(e) {
         const product = JSON.parse(e.data);
@@ -154,26 +168,16 @@
     }
 </script>
 
-<!-- Wishlist Button -->
-<button class="btn btn-outline-danger wishlist-btn" 
-        data-product-id="{{ product.id }}"
-        onclick="toggleWishlist(this)">
-    <i class="{{ 'fas' if product.in_wishlist else 'far' }} fa-heart"></i>
-</button>
-
-<script>
-    function toggleWishlist(button) {
-        const productId = button.dataset.productId;
-        fetch(`/wishlist/add/${productId}`, { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const icon = button.querySelector('i');
-                    icon.classList.toggle('far');
-                    icon.classList.toggle('fas');
-                }
-            });
-    }
-</script>
+<!-- Price Range Slider -->
+<div class="mb-3">
+    <label class="form-label">Price Range</label>
+    <div class="slider-container">
+        <input type="range" class="form-range" id="priceSlider" min="0" max="1000" step="10">
+        <div class="d-flex justify-content-between">
+            <span id="minPriceDisplay">R0</span>
+            <span id="maxPriceDisplay">R1000</span>
+        </div>
+    </div>
+</div>
 {% endblock %}
 {% endblock %}

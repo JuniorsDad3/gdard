@@ -445,6 +445,13 @@ def product_detail(product_id):
     product = Product(**rows[0])
     return render_template('product_detail.html', product=product)
 
+@routes_bp.route('/marketplace')
+def marketplace():
+    products = Product.get_all()  # or however you fetch them
+    categories = Product.get_categories()  # if you want categories filter
+
+    return render_template('marketplace.html', products=products, categories=categories)
+
 @routes_bp.route('/cart')
 @login_required
 def shopping_cart():
