@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2"><i class="fas fa-users-cog"></i> User Management</h1>
+        <div class="btn-toolbar">
+            <div class="input-group me-2">
+                <input type="text" class="form-control" placeholder="Search users...">
+                <button class="btn btn-success" type="button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <a href="#" class="btn btn-success">
+                <i class="fas fa-user-plus"></i> New User
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Last Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.full_name }}</td>
+                            <td><span class="badge bg-info">{{ user.role|title }}</span></td>
+                            <td><span class="badge bg-{{ 'success' if user.active else 'danger' }}">
+                                {{ 'Active' if user.active else 'Inactive' }}
+                            </span></td>
+                            <td>{{ user.last_login|date_format }}</td>
+                            <td>
+                                <a href="{{ url_for('routes.user_detail', user_id=user.id) }}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-warning">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <nav>
+                <ul class="pagination justify-content-end">
+                    <!-- Pagination links -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}

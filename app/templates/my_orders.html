@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>My Orders</h2>
+  {% if orders %}
+    <ul class="list-group">
+      {% for order in orders %}
+        <li class="list-group-item">
+          <a href="{{ url_for('routes.order_detail', order_id=order.id) }}">
+            Order #{{ order.id }} – {{ order.status }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You have no orders.</p>
+  {% endif %}
+{% endblock %}

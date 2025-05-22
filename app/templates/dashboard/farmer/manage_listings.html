@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Your Product Listings</h2>
+    {% if listings %}
+        <ul class="list-group">
+            {% for listing in listings %}
+                <li class="list-group-item">
+                    {{ listing.name }} - {{ listing.price }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No listings found.</p>
+    {% endif %}
+</div>
+{% endblock %}

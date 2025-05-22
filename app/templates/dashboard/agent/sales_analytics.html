@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2"><i class="fas fa-chart-line"></i> Sales Analytics</h1>
+        <div class="btn-toolbar">
+            <div class="btn-group me-2">
+                <button class="btn btn-sm btn-outline-success" onclick="updateChart('week')">Week</button>
+                <button class="btn btn-sm btn-outline-success" onclick="updateChart('month')">Month</button>
+                <button class="btn btn-sm btn-outline-success" onclick="updateChart('year')">Year</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    Sales Trends
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" width="400" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    Top Products
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for product in top_products %}
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>{{ product.name }}</span>
+                            <span class="badge bg-success">R{{ product.total }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<!-- Chart.js implementation -->
+{% endblock %}
+{% endblock %}

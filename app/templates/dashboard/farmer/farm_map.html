@@ -1,0 +1,19 @@
+<!-- templates/dashboard/farm_map.html -->
+<div id="farmMap" style="height: 600px;"></div>
+
+<script>
+    const map = L.map('farmMap').setView([-28.4793, 24.6727], 6); // Centered on Gauteng
+    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: 'Map data: © OpenTopoMap'
+    }).addTo(map);
+
+    // Add farm boundaries
+    fetch('/api/farms/{{ current_user.id }}')
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, {
+                style: {color: "#28a745", weight: 3}
+            }).addTo(map);
+        });
+</script>

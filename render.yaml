@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: gdard-app
+    env: docker
+    plan: free
+    envVars:
+      - key: SECRET_KEY
+        value: your-secret-key
+      - key: EXCEL_DB_PATH
+        value: /data/GDARD.xlsx
+      - key: MAIL_USERNAME
+        value: itradeafrika@gmail.com
+      - key: MAIL_PASSWORD
+        value: xxwvccxuwxjvqfow

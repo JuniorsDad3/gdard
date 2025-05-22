@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2"><i class="fas fa-map-marked-alt"></i> Regional Analytics</h1>
+        <div class="btn-toolbar">
+            <div class="input-group me-2">
+                <select class="form-select" id="regionSelect">
+                    <option>All Regions</option>
+                    {% for region in regions %}
+                    <option value="{{ region.id }}">{{ region.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    Regional Performance Map
+                </div>
+                <div class="card-body" style="height: 500px;">
+                    <div id="regionMap"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    Key Metrics
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-6">Total Farms</dt>
+                        <dd class="col-6 text-end">{{ total_farms }}</dd>
+
+                        <dt class="col-6">Compliance Rate</dt>
+                        <dd class="col-6 text-end">{{ compliance_rate }}%</dd>
+
+                        <dt class="col-6">Avg Yield</dt>
+                        <dd class="col-6 text-end">{{ avg_yield }} kg/ha</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<!-- Map implementation (Leaflet.js) -->
+{% endblock %}
+{% endblock %}

@@ -1,138 +1,245 @@
 # app/models.py
-from flask_sqlalchemy import SQLAlchemy
+import pandas as pd
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-from app import db, login_manager
+from werkzeug.security import generate_password_hash, check_password_hash
+from app.excel_db import load_sheet, save_sheet
 
+# A simple base to share load/save by sheet name
+class ExcelModel:
+    sheet_name: str  # override in subclasses
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
-    user_type = db.Column(db.String(20))  # farmer, buyer, agent
-    farm_size = db.Column(db.Float)
-    location = db.Column(db.String(100))
-    products = db.relationship('Product', backref='farmer', lazy=True)
-    permits = db.relationship('Permit', backref='applicant', lazy=True)
+    @classmethod
+    def _df(cls):
+        return load_sheet(cls.sheet_name)
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-    
+    @classmethod
+    def _save_df(cls, df):
+        save_sheet(cls.sheet_name, df)
+
+    @classmethod
+    def all(cls):
+        return cls._df().to_dict(orient='records')
+
+    @classmethod
+    def find(cls, **kwargs):
+        df = cls._df()
+        for key, value in kwargs.items():
+            df = df[df[key] == value]
+        return df.to_dict(orient='records')
+
+    @classmethod
+    def get_by_id(cls, id):
+        """Return the first matching row as a dict, or None."""
+        rows = cls.find(id=id)
+        return rows[0] if rows else None
+
+    @classmethod
+    def delete_by_id(cls, _id):
+        df = cls._df()
+        df = df[df.id != _id]
+        cls._save_df(df)
+
+    @classmethod
+    def _next_id(cls):
+        df = cls._df()
+        return int(df.id.max() + 1) if not df.empty else 1
+
+class User(UserMixin, ExcelModel):
+    sheet_name = "Users"
+
+    def __init__(self, **fields):
+        for key, val in fields.items():
+            setattr(self, key, val)
+
+    @classmethod
+    def find_by_email(cls, email):
+        rows = cls.find()
+        for row in rows:
+            user = cls(**row)
+            if user.email.lower() == email.lower():
+                return user
+        return None
+
+    @classmethod
+    def create(cls, username, email, password, user_type, farm_size=0, location="", phone="", avatar_url=""):
+        df = cls._df()
+        new = {
+            "id": cls._next_id(),
+            "username": username,
+            "email": email,
+            "password_hash": generate_password_hash(password),
+            "user_type": user_type,
+            "farm_size": farm_size,
+            "location": location,
+            "phone": phone,
+            "avatar_url": avatar_url,
+            "created_at": datetime.utcnow(),
+        }
+        df = pd.concat([df, pd.DataFrame([new])], ignore_index=True)
+        cls._save_df(df)
+        return cls(**new)
+
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+class Product(ExcelModel):
+    sheet_name = "Products"
 
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    category = db.Column(db.String(50))  # crops, livestock
-    price = db.Column(db.Float)
-    quantity = db.Column(db.Float)
-    description = db.Column(db.Text)
-    farmer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class SupportProgram(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text)
-    eligibility = db.Column(db.Text)
-    deadline = db.Column(db.Date)
-    application_link = db.Column(db.String(200))
+class SupportProgram(ExcelModel):
+    sheet_name = "SupportPrograms"
 
-class Permit(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    permit_type = db.Column(db.String(50), nullable=False)  # environmental, agricultural, etc.
-    status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
-    application_date = db.Column(db.DateTime, default=datetime.utcnow)
-    issued_date = db.Column(db.DateTime)
-    expiry_date = db.Column(db.DateTime)
-    impact_assessment = db.Column(db.Text)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    @classmethod
+    def create(cls, title, description, eligibility, deadline, application_link, max_funding):
+        df = cls._df()
+        new = {
+            "id": cls._next_id(),
+            "title": title,
+            "description": description,
+            "eligibility": eligibility,
+            "deadline": deadline,
+            "application_link": application_link,
+            "max_funding": max_funding,
+        }
+        df = pd.concat([df, pd.DataFrame([new])], ignore_index=True)
+        cls._save_df(df)
+        return new
 
-class LandRegistry:
-    def register_transfer(self, seller, buyer, parcel_id):
-        tx_hash = contract.functions.transferOwnership(
-            seller, buyer, parcel_id
-        ).transact()
-        return tx_hash
 
-class SensorDevice(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    device_id = db.Column(db.String(50), unique=True)
-    farm_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    sensor_type = db.Column(db.String(50))  # soil, weather
+class FundingApplication(ExcelModel):
+    sheet_name = "FundingApplications"
 
-class SensorReading(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    device_id = db.Column(db.String(50), db.ForeignKey('sensor_device.device_id'))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    temperature = db.Column(db.Float)
-    humidity = db.Column(db.Float)
-    soil_moisture = db.Column(db.Float)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    @classmethod
+    def create(cls, farmer_id, program_id, amount_requested, documents, notes=""):
+        df = cls._df()
+        new = {
+            "id": cls._next_id(),
+            "farmer_id": farmer_id,
+            "program_id": program_id,
+            "amount_requested": amount_requested,
+            "status": "pending",
+            "submitted_date": datetime.utcnow(),
+            "documents": documents,
+            "notes": notes,
+        }
+        df = pd.concat([df, pd.DataFrame([new])], ignore_index=True)
+        cls._save_df(df)
+        return new
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
-# Agent Models
-class ComplianceReport(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    farm_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    inspection_date = db.Column(db.DateTime)
-    status = db.Column(db.String(20))  # compliant/non-compliant
-    report_url = db.Column(db.String(200))
-    findings = db.Column(db.Text)
-    inspector_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+class Permit(ExcelModel):
+    sheet_name = "Permits"
 
-    # Relationships
-    farm = db.relationship('User', foreign_keys=[farm_id])
-    inspector = db.relationship('User', foreign_keys=[inspector_id])
+    @classmethod
+    def create(cls, permit_type, user_id, impact_assessment, issued_date=None, expiry_date=None):
+        df = cls._df()
+        new = {
+            "id": cls._next_id(),
+            "permit_type": permit_type,
+            "status": "pending",
+            "application_date": datetime.utcnow(),
+            "issued_date": issued_date,
+            "expiry_date": expiry_date,
+            "impact_assessment": impact_assessment,
+            "user_id": user_id,
+        }
+        df = pd.concat([df, pd.DataFrame([new])], ignore_index=True)
+        cls._save_df(df)
+        return new
 
-# Farmer Models
-class PlantingSchedule(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    farmer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    crop_type = db.Column(db.String(50))
-    start_date = db.Column(db.DateTime)
-    end_date = db.Column(db.DateTime)
 
-# Buyer Models
-class CartItem(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    quantity = db.Column(db.Float)
+class ComplianceCase(ExcelModel):
+    sheet_name = "ComplianceCases"
 
-class Order(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    quantity = db.Column(db.Float)
-    total = db.Column(db.Float)
-    status = db.Column(db.String(20), default='pending')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-class Wishlist(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    
-class ProductRating(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    rating = db.Column(db.Integer)
-    comment = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    @classmethod
+    def create(cls, farm_id, agent_id, issue_type, severity, description, due_date, documents):
+        df = cls._df()
+        new = {
+            "id": cls._next_id(),
+            "farm_id": farm_id,
+            "agent_id": agent_id,
+            "issue_type": issue_type,
+            "severity": severity,
+            "description": description,
+            "due_date": due_date,
+            "status": "open",
+            "documents": documents,
+            "created_at": datetime.utcnow(),
+        }
+        df = pd.concat([df, pd.DataFrame([new])], ignore_index=True)
+        cls._save_df(df)
+        return new
 
-class FarmerTask(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    farmer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    title = db.Column(db.String(100))
-    description = db.Column(db.Text)
-    due_date = db.Column(db.DateTime)
-    completed = db.Column(db.Boolean, default=False)
+
+class SensorDevice(ExcelModel):
+    sheet_name = "SensorDevices"
+
+    @classmethod
+    def create(cls, device_id, farm_id, sensor_type):
+        df = cls._df()
+        new = {
+            "id":        cls._next_id(),
+            "device_id": device_id,
+            "farm_id":   farm_id,
+            "sensor_type": sensor_type
+        }
+        df = pd.concat([df, pd.DataFrame([new])], ignore_index=True)
+        cls._save_df(df)
+        return new
+
+class SensorReading(ExcelModel):
+    sheet_name = "SensorReadings"
+
+    @classmethod
+    def create(cls, device_id, temperature, humidity, soil_moisture, user_id, timestamp=None):
+        df = cls._df()
+        new = {
+            "id":           cls._next_id(),
+            "device_id":    device_id,
+            "timestamp":    timestamp or datetime.utcnow(),
+            "temperature":  temperature,
+            "humidity":     humidity,
+            "soil_moisture":soil_moisture,
+            "user_id":      user_id,
+        }
+        df = pd.concat([df, pd.DataFrame([new])], ignore_index=True)
+        cls._save_df(df)
+        return new
+
+class ComplianceReport(ExcelModel):
+    sheet_name = "ComplianceReports"
+
+    @classmethod
+    def create(cls, farm_id, inspection_date, status, report_url, findings, inspector_id):
+        df = cls._df()
+        new = {
+            "id":              cls._next_id(),
+            "farm_id":         farm_id,
+            "inspection_date": inspection_date,
+            "status":          status,
+            "report_url":      report_url,
+            "findings":        findings,
+            "inspector_id":    inspector_id,
+        }
+        df = pd.concat([df, pd.DataFrame([new])], ignore_index=True)
+        cls._save_df(df)
+        return new
+
+class FarmerTask(ExcelModel):
+    sheet_name = "FarmerTasks"
+
+    @classmethod
+    def create(cls, farmer_id, title, description, due_date, completed=False):
+        df = cls._df()
+        new = {
+            "id":         cls._next_id(),
+            "farmer_id":  farmer_id,
+            "title":      title,
+            "description":description,
+            "due_date":   due_date,
+            "completed":  completed,
+        }
+        df = pd.concat([df, pd.DataFrame([new])], ignore_index=True)
+        cls._save_df(df)
+        return new

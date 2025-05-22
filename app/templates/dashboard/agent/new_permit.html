@@ -1,0 +1,177 @@
+<!-- templates/permits/new_permit.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Include Agent Sidebar -->
+        {% include 'dashboard/agent/sidebar.html' %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-file-signature text-success"></i>
+                    New Permit Application
+                </h1>
+            </div>
+
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Permit Application Form</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('routes.new_permit') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                        <!-- Applicant Selection -->
+                        <div class="form-group mb-4">
+                            <label class="form-label required">Applicant</label>
+                            <select class="form-select" name="applicant" required>
+                                <option value="">Select Farmer</option>
+                                {% for farmer in farmers %}
+                                <option value="{{ farmer.id }}">
+                                    {{ farmer.username }} - {{ farmer.location }} ({{ farmer.farm_size }}ha)
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Registered farmers in the system</small>
+                        </div>
+
+                        <!-- Permit Details -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label required">Permit Type</label>
+                                    <select class="form-select" name="permit_type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="environmental">Environmental Impact</option>
+                                        <option value="agricultural">Agricultural Activity</option>
+                                        <option value="water_use">Water Use License</option>
+                                        <option value="land_clearing">Land Clearing</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label required">Application Date</label>
+                                    <input type="date" class="form-control" 
+                                           name="application_date" 
+                                           value="{{ today }}" 
+                                           required readonly>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" name="status">
+                                        <option value="pending" selected>Pending Review</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Validity Period -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Issue Date</label>
+                                    <input type="date" class="form-control" 
+                                           name="issued_date"
+                                           min="{{ today }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Expiry Date</label>
+                                    <input type="date" class="form-control" 
+                                           name="expiry_date"
+                                           min="{{ today }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Environmental Impact Assessment -->
+                        <div class="form-group mb-4">
+                            <label class="form-label required">Impact Assessment</label>
+                            <textarea class="form-control" 
+                                      name="impact_assessment" 
+                                      rows="5"
+                                      placeholder="Describe the environmental impact..."
+                                      required></textarea>
+                            <small class="form-text text-muted">
+                                Follow DEA guidelines for impact assessments
+                            </small>
+                        </div>
+
+                        <!-- Document Upload -->
+                        <div class="form-group mb-4">
+                            <label class="form-label">Supporting Documents</label>
+                            <input type="file" class="form-control" 
+                                   name="documents"
+                                   multiple
+                                   accept=".pdf,.doc,.docx">
+                            <small class="form-text text-muted">
+                                Upload relevant documents (PDF/DOC, max 5 files)
+                            </small>
+                        </div>
+
+                        <div class="form-group text-end">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check-circle"></i> Submit Application
+                            </button>
+                            <a href="{{ url_for('routes.new_permit') }}">Create New Permit</a> 
+                               class="btn btn-outline-secondary btn-lg">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Guidelines Section -->
+            <div class="card mt-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        Permit Application Guidelines
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            1. All fields marked with <span class="text-danger">*</span> are mandatory
+                        </li>
+                        <li class="list-group-item">
+                            2. Environmental Impact Assessments must follow NEMA regulations
+                        </li>
+                        <li class="list-group-item">
+                            3. Processing time: 15-30 working days
+                        </li>
+                        <li class="list-group-item">
+                            4. Maximum file size per document: 5MB
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Date validation
+    const issuedDate = document.querySelector('input[name="issued_date"]');
+    const expiryDate = document.querySelector('input[name="expiry_date"]');
+    
+    if(issuedDate && expiryDate) {
+        issuedDate.addEventListener('change', function() {
+            expiryDate.min = this.value;
+        });
+    }
+</script>
+{% endblock %}

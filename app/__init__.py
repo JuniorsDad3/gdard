@@ -1,35 +1,41 @@
-# app/__init__.py
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_talisman import Talisman
+from flask_mail import Mail
+
+from app.models import User
 
 csrf = CSRFProtect()
-
-db = SQLAlchemy()
-migrate = Migrate()
 login_manager = LoginManager()
+mail = Mail()
 
+# Move date_format here so we don't import back into routes.py
+def date_format(value, format="%Y-%m-%d"):
+    return value.strftime(format)
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
 
-    print("Final SQLALCHEMY_DATABASE_URI:", app.config.get("SQLALCHEMY_DATABASE_URI"))
+    # Register the filter before loading templates
+    app.jinja_env.filters['date_format'] = date_format
 
-    db.init_app(app)
+    # Initialize extensions
     csrf.init_app(app)
-    migrate.init_app(app, db)
     login_manager.init_app(app)
+    mail.init_app(app)
+    Talisman(app, content_security_policy=None)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        row = User.get_by_id(int(user_id))
+        return User(**row) if row else None
+
+    # Import and register your blueprint _after_ defining filters
     from app.routes import routes_bp
     app.register_blueprint(routes_bp)
 
-    with app.app_context():
-        from .routes import routes_bp  # Import Blueprint
-
-        from . import models
-        db.create_all()
-
     return app
+
+app = create_app()

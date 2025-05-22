@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice #{{ order.id }}</title>
+    <style>
+        .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; }
+        .logo { width: 200px; }
+        .text-success { color: #28a745; }
+        .table thead th { background-color: #28a745; color: white; }
+    </style>
+</head>
+<body>
+<div class="invoice-box">
+    <div class="row mb-4">
+        <div class="col-6">
+            <img src="/static/img/logo.png" class="logo" alt="Company Logo">
+        </div>
+        <div class="col-6 text-end">
+            <h2 class="text-success">INVOICE</h2>
+            <p>Date: {{ order.date|date_format }}</p>
+            <p>Invoice #: {{ order.id }}</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-6">
+            <strong>Billed To:</strong><br>
+            {{ order.customer.name }}<br>
+            {{ order.customer.address }}
+        </div>
+        <div class="col-6 text-end">
+            <strong>Payment Method:</strong><br>
+            {{ order.payment_method }}<br>
+            Status: <span class="badge bg-success">{{ order.status|title }}</span>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>R{{ item.price }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>R{{ item.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-end"><strong>Grand Total:</strong></td>
+                <td>R{{ order.total }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="text-center mt-4">
+        <p class="text-muted">Thank you for your business!</p>
+        <p>Payment due within 30 days</p>
+    </div>
+</div>
+</body>
+</html>
