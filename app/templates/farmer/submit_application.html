@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Submit New Funding Application</h2>
+    <form method="POST" action="{{ url_for('routes.submit_application') }}">
+        <div class="mb-3">
+            <label for="appType" class="form-label">Application Type</label>
+            <select class="form-select" id="appType" name="type" required>
+                <option value="">-- Select Type --</option>
+                <option value="seed_grant">Seed Grant</option>
+                <option value="equipment_subsidy">Equipment Subsidy</option>
+                <option value="irrigation_support">Irrigation Support</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="details" class="form-label">Application Details</label>
+            <textarea class="form-control" id="details" name="details" rows="4" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Application</button>
+    </form>
+</div>
+{% endblock %}

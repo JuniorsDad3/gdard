@@ -5,6 +5,7 @@ from pathlib import Path
 
 # Point to your single Excel workbook
 EXCEL_FILE = Path(r"C:\Users\dell5348\gdard\GDARD.xlsx")
+print(pd.ExcelFile(EXCEL_FILE).sheet_names)
 
 def load_sheet(sheet_name: str) -> pd.DataFrame:
     """

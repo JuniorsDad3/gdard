@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2"><i class="fas fa-seedling"></i> Crop Performance</h1>
+        <div class="btn-toolbar">
+            <div class="btn-group me-2">
+                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#newCropModal">
+                    <i class="fas fa-plus"></i> New Crop
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    Growth Progress
+                </div>
+                <div class="card-body">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    Environmental Conditions
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-thermometer-half"></i> Temperature</h6>
+                        <h3>{{ conditions.temp }}°C</h3>
+                    </div>
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-tint"></i> Soil Moisture</h6>
+                        <h3>{{ conditions.moisture }}%</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<!-- Chart.js implementation -->
+{% endblock %}
+{% endblock %}

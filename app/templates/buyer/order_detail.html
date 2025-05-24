@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2"><i class="fas fa-box-open"></i> Order #{{ order.id }}</h1>
+        <div class="btn-toolbar">
+            <div class="btn-group me-2">
+                <button class="btn btn-sm btn-outline-success">
+                    <i class="fas fa-print"></i> Invoice
+                </button>
+                <button class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-times-circle"></i> Cancel Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    Order Items
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td>R{{ item.price_per_kg }}/kg</td>
+                                    <td>{{ item.quantity }} kg</td>
+                                    <td>R{{ item.total }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    Order Timeline
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for event in order.history %}
+                        <div class="timeline-item mb-3">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">{{ event.timestamp|date_format }}</small>
+                                <p class="mb-0">{{ event.status|title }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

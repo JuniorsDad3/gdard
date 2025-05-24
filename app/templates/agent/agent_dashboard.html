@@ -1,0 +1,128 @@
+<!-- templates/dashboard/agent_dashboard.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        {% include 'dashboard/agent/sidebar.html' %}
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">GDARD Agent Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <button class="btn btn-sm btn-outline-success">
+                        <i class="fas fa-file-export"></i> Generate Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card border-danger">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-file-invoice-dollar"></i> Funding Apps</h5>
+                            <h2 class="card-text">{{ pending_funding|default(0) }}</h2>
+                            <a href="{{ url_for('routes.funding_application') }}" class="btn btn-sm btn-danger">Review</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-warning">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-file-contract"></i> Pending Permits</h5>
+                            <h2 class="card-text">{{ pending_permits|default(0) }}</h2>
+                            <a href="{{ url_for('routes.list_permits') }}" class="btn btn-sm btn-warning">Process</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-tractor"></i> Active Farms</h5>
+                            <h2 class="card-text">{{ active_farms|default(0) }}</h2>
+                            <a href="{{ url_for('routes.farm_map') }}" class="btn btn-sm btn-success">View Map</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compliance Overview -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-clipboard-check"></i> Recent Compliance Issues</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Farm</th>
+                                    <th>Issue Type</th>
+                                    <th>Severity</th>
+                                    <th>Due Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for issue in compliance_issues %}
+                                <tr>
+                                    <td>{{ issue.farm.name }}</td>
+                                    <td>{{ issue.issue_type }}</td>
+                                    <td><span class="badge bg-{{ 'danger' if issue.severity == 'high' else 'warning' }}">{{ issue.severity|title }}</span></td>
+                                    <td>{{ issue.due_date|date_format }}</td>
+                                    <td>
+                                        <a href="{{ url_for('routes.compliance_detail', issue_id=issue.id) }}" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-search"></i> Inspect
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Funding Applications Table -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-file-signature"></i> Recent Funding Applications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Applicant</th>
+                                    <th>Program</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in funding_apps %}
+                                <tr>
+                                    <td>{{ app.farmer.name }}</td>
+                                    <td>{{ app.program.name }}</td>
+                                    <td>R{{ app.amount_requested }}</td>
+                                    <td><span class="badge bg-{{ 'success' if app.status == 'approved' else 'warning' }}">{{ app.status|title }}</span></td>
+                                    <td>{{ app.submitted_date|date_format }}</td>
+                                    <td>
+                                        <a href="{{ url_for('routes.funding_review', app_id=app.id) }}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-file-alt"></i> Review
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Checkout Process</h4>
+                </div>
+                <div class="card-body">
+                    <div class="checkout-steps">
+                        <div class="step active"><span>1</span> Shipping</div>
+                        <div class="step"><span>2</span> Payment</div>
+                        <div class="step"><span>3</span> Confirm</div>
+                    </div>
+
+                    <form class="mt-4">
+                        <div class="mb-3">
+                            <label class="form-label">Shipping Address</label>
+                            <textarea class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Contact Number</label>
+                                <input type="tel" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Delivery Date</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="payment-methods">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment" id="creditCard">
+                                <label class="form-check-label" for="creditCard">
+                                    <i class="fab fa-cc-visa"></i> Credit Card
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment" id="mobileMoney">
+                                <label class="form-check-label" for="mobileMoney">
+                                    <i class="fas fa-mobile-alt"></i> Mobile Money
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 mt-4">
+                            <i class="fas fa-lock"></i> Complete Purchase
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            {% include 'partials/order_summary.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,6 +4,9 @@ from flask_login import UserMixin
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.excel_db import load_sheet, save_sheet
+from pathlib import Path
+
+EXCEL_FILE = Path(r"C:\Users\dell5348\gdard\GDARD.xlsx")
 
 # A simple base to share load/save by sheet name
 class ExcelModel:
@@ -82,10 +85,6 @@ class User(UserMixin, ExcelModel):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-class Product(ExcelModel):
-    sheet_name = "Products"
-
 
 class SupportProgram(ExcelModel):
     sheet_name = "SupportPrograms"
@@ -243,3 +242,18 @@ class FarmerTask(ExcelModel):
         df = pd.concat([df, pd.DataFrame([new])], ignore_index=True)
         cls._save_df(df)
         return new
+
+class Product(ExcelModel):
+    sheet_name = "Products"
+
+    def __init__(self, **fields):
+        for key, val in fields.items():
+            setattr(self, key, val)
+
+class ExcelModel:
+    sheet_name = None
+
+    @classmethod
+    def all(cls):
+        df = load_sheet(cls.sheet_name)
+        return df.to_dict(orient="records")

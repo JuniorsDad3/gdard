@@ -207,7 +207,7 @@ def rate_product():
 @routes_bp.route('/farmer/tasks')
 @login_required
 def farmer_tasks():
-    rows = FarmerTask.find(farmer_id=current_user.id)
+    rows = FarmerTask.find(user_id=current_user.id)
     tasks = [FarmerTask(**r) for r in rows]
     return render_template('dashboard/farmer/tasks.html', tasks=tasks)
 
@@ -295,14 +295,18 @@ def support_programs():
     programs = SupportProgram.query.all()
     return render_template('programs.html', programs=programs)
 
-@routes_bp.route('/sensor-data')
+@routes_bp.route('/sensor/data')
 @login_required
 def sensor_data():
-    if current_user.user_type not in ['agent', 'farmer']:
-        abort(403)
-    sensor_readings = SensorReading.query.filter_by(farm_id=current_user.id).all()
-    return render_template('sensor_data.html', readings=sensor_readings)
-
+    # fetch readings via ExcelModel API
+    rows = SensorReading.find(user_id=current_user.id)
+    readings = [SensorReading(**r) for r in rows]
+    return jsonify([{
+        'timestamp': r.timestamp.isoformat(),
+        'temperature': r.temperature,
+        'humidity': r.humidity,
+        'soil_moisture': r.soil_moisture
+    } for r in readings])
 
 @routes_bp.route('/predict-yield-ml', methods=['POST']) 
 @login_required
@@ -436,12 +440,23 @@ def product_detail(product_id):
     product = Product(**rows[0])
     return render_template('product_detail.html', product=product)
 
-@routes_bp.route('/marketplace')
+@routes_bp.route("/marketplace")
 def marketplace():
-    products = Product.get_all()  # or however you fetch them
-    categories = Product.get_categories()  # if you want categories filter
+    products_data = Product.all()
 
-    return render_template('marketplace.html', products=products, categories=categories)
+    enriched_products = []
+    for p in products_data:
+        # Add default farmer data if actual lookup isn't implemented yet
+        p['farmer'] = {
+            'username': 'DemoFarmer',  # Replace with actual lookup later
+            'location': 'Limpopo'      # Replace with actual lookup later
+        }
+        # Optional: Set wishlist status (defaulting to False for now)
+        p['in_wishlist'] = False
+
+        enriched_products.append(p)
+
+    return render_template("marketplace.html", products=enriched_products)
 
 @routes_bp.route('/cart')
 @login_required
@@ -455,11 +470,25 @@ def shopping_cart():
 # ================== Funding & Applications ==================
 @routes_bp.route('/funding/apply', methods=['GET', 'POST'])
 @login_required
-def funding_application():
+def submit_application():
+    # only farmers may apply
     if current_user.user_type != 'farmer':
         abort(403)
-    # Add funding application logic here
-    return render_template('funding_application.html')
+
+    form = FundingApplicationForm()   # your WTForm for the application
+    if form.validate_on_submit():
+        FundingApplication.create(
+            farmer_id=current_user.id,
+            program_id=form.program_id.data,
+            amount_requested=form.amount_requested.data,
+            documents=[],
+            notes=form.notes.data
+        )
+        flash('Application submitted successfully!', 'success')
+        return redirect(url_for('routes.dashboard'))
+
+    # on GET or validation failure
+    return render_template('farmer/submit_application.html', form=form)
 
 @routes_bp.route('/applications/<int:app_id>')
 @login_required
@@ -486,15 +515,6 @@ def funding_applications():
     return render_template('dashboard/funding_applications.html',
                            funding_apps=apps)
 
-@routes_bp.route('/submit-application', methods=['GET', 'POST'])
-@login_required
-def submit_application():
-    if request.method == 'POST':
-        # TODO: Handle form submission, save to Excel or data store
-        flash('Application submitted successfully!', 'success')
-        return redirect(url_for('routes.submit_application'))
-
-    return render_template('farmer/submit_application.html')
 
 @routes_bp.route('/manage-listings')
 @login_required

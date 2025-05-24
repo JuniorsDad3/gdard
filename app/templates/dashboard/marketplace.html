@@ -2,182 +2,184 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row">
-        <!-- Filters Sidebar -->
-        <div class="col-md-3">
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-filter"></i> Filters</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Category</label>
-                        <select class="form-select" id="categoryFilter">
-                            <option value="">All Categories</option>
-                            {% for category in categories %}
-                            <option value="{{ category }}">{{ category|title }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Price Range</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control" placeholder="Min" id="minPrice">
-                            <input type="number" class="form-control" placeholder="Max" id="maxPrice">
-                        </div>
-                    </div>
-
-                    <button class="btn btn-success btn-block" onclick="applyFilters()">
-                        <i class="fas fa-check"></i> Apply Filters
-                    </button>
-                </div>
-            </div>
+  <div class="row">
+    <!-- Filters Sidebar -->
+    <div class="col-md-3">
+      <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0"><i class="fas fa-filter"></i> Filters</h5>
         </div>
-
-        <!-- Products Grid -->
-        <div class="col-md-9">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Agricultural Marketplace</h2>
-                <div class="d-flex gap-2">
-                    <select class="form-select" id="sortBy">
-                        <option value="price_asc">Price: Low to High</option>
-                        <option value="price_desc">Price: High to Low</option>
-                        <option value="date_newest">Newest First</option>
-                    </select>
-                </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="categoryFilter">
+              <option value="">All Categories</option>
+              {% for category in categories %}
+                <option value="{{ category }}">{{ category|title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Price Range</label>
+            <div class="input-group">
+              <input type="number" class="form-control" placeholder="Min" id="minPrice">
+              <input type="number" class="form-control" placeholder="Max" id="maxPrice">
             </div>
-
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="productGrid">
-                {% for product in products %}
-                <div class="col">
-                    <div class="card h-100 product-card" id="product-{{ product.id }}">
-                        <img src="{{ product.image_url or 'https://via.placeholder.com/300' }}" 
-                             class="card-img-top" 
-                             alt="{{ product.name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text text-muted">
-                                <i class="fas fa-tag"></i> {{ product.category|title }}
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h4 class="text-success mb-0">R{{ product.price }}/kg</h4>
-                                <span class="badge bg-info">
-                                    <i class="fas fa-map-marker-alt"></i> {{ product.farmer.location }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
-                            <button class="btn btn-success btn-block" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#productModal{{ product.id }}">
-                                <i class="fas fa-cart-plus"></i> Add to Cart
-                            </button>
-
-                            <!-- Wishlist Button inside product card -->
-                            <button class="btn btn-outline-danger wishlist-btn ms-2" 
-                                    data-product-id="{{ product.id }}"
-                                    onclick="toggleWishlist(this)">
-                                <i class="{{ 'fas' if product.in_wishlist else 'far' }} fa-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+          </div>
+          <button class="btn btn-success btn-block" onclick="applyFilters()">
+            <i class="fas fa-check"></i> Apply Filters
+          </button>
         </div>
+      </div>
     </div>
+
+    <!-- Products Grid -->
+    <div class="col-md-9">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Agricultural Marketplace</h2>
+        <div class="d-flex gap-2">
+          <select class="form-select" id="sortBy">
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="date_newest">Newest First</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="productGrid">
+        {% for product in products %}
+          <div class="col">
+            <div class="card h-100 product-card" id="product-{{ product.id }}">
+              <img src="{{ product.image_url or 'https://via.placeholder.com/300' }}"
+                   class="card-img-top"
+                   alt="{{ product.name }}">
+              <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text text-muted">
+                  <i class="fas fa-tag"></i> {{ product.category|title }}
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <h4 class="text-success mb-0 price">R{{ product.price }}/kg</h4>
+                  <span class="badge bg-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    {{ product.farmer.location }}
+                  </span>
+                </div>
+              </div>
+              <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                <button class="btn btn-success w-100 me-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#productModal{{ product.id }}">
+                  <i class="fas fa-cart-plus"></i> Add to Cart
+                </button>
+
+                <!-- Wishlist Button inside product card -->
+                <button class="btn btn-outline-danger wishlist-btn"
+                        data-product-id="{{ product.id }}"
+                        onclick="toggleWishlist(this)">
+                  <i class="{{ 'fas' if product.in_wishlist else 'far' }} fa-heart"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Product Modals -->
 {% for product in products %}
-<div class="modal fade" id="productModal{{ product.id }}" tabindex="-1">
+  <div class="modal fade" id="productModal{{ product.id }}" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">{{ product.name }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <img src="{{ product.image_url or 'https://via.placeholder.com/300' }}" class="img-fluid rounded" alt="{{ product.name }}">
-                    </div>
-                    <div class="col-md-6">
-                        <p>{{ product.description }}</p>
-                        <p><strong>Farmer:</strong> {{ product.farmer.username }}</p>
-                        <p><strong>Available:</strong> <span class="available-quantity">{{ product.quantity }}</span> kg</p>
-                        <input type="number" class="form-control mb-3" 
-                               value="1" min="1" max="{{ product.quantity }}">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer d-flex justify-content-between align-items-center">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success">Add to Cart</button>
-
-                <!-- Wishlist Button inside modal -->
-                <button class="btn btn-outline-danger wishlist-btn ms-2" 
-                        data-product-id="{{ product.id }}"
-                        onclick="toggleWishlist(this)">
-                    <i class="{{ 'fas' if product.in_wishlist else 'far' }} fa-heart"></i>
-                </button>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">{{ product.name }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <img src="{{ product.image_url or 'https://via.placeholder.com/300' }}"
+                   class="img-fluid rounded"
+                   alt="{{ product.name }}">
+            </div>
+            <div class="col-md-6">
+              <p>{{ product.description }}</p>
+              <p><strong>Farmer:</strong> {{ product.farmer.username }}</p>
+              <p>
+                <strong>Available:</strong>
+                <span class="available-quantity">{{ product.quantity }}</span> kg
+              </p>
+              <input type="number"
+                     class="form-control mb-3"
+                     value="1"
+                     min="1"
+                     max="{{ product.quantity }}">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-between align-items-center">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-success">Add to Cart</button>
+
+          <!-- Wishlist Button inside modal -->
+          <button class="btn btn-outline-danger wishlist-btn ms-2"
+                  data-product-id="{{ product.id }}"
+                  onclick="toggleWishlist(this)">
+            <i class="{{ 'fas' if product.in_wishlist else 'far' }} fa-heart"></i>
+          </button>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 {% endfor %}
+{% endblock %}
 
 {% block scripts %}
 <script>
-    function applyFilters() {
-        const category = document.getElementById('categoryFilter').value;
-        const minPrice = document.getElementById('minPrice').value;
-        const maxPrice = document.getElementById('maxPrice').value;
-        
-        // Implement filter logic (you can send data to backend or filter client-side)
-        console.log('Applying filters:', { category, minPrice, maxPrice });
-    }
+  // Expose full products array to JS
+  const PRODUCTS = {{ products|tojson }};
 
-    function toggleWishlist(button) {
-        const productId = button.dataset.productId;
-        fetch(`/wishlist/add/${productId}`, { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const icon = button.querySelector('i');
-                    icon.classList.toggle('far');
-                    icon.classList.toggle('fas');
-                }
-            });
-    }
+  function applyFilters() {
+    const category = document.getElementById('categoryFilter').value;
+    const minPrice = document.getElementById('minPrice').value;
+    const maxPrice = document.getElementById('maxPrice').value;
+    console.log('Applying filters:', { category, minPrice, maxPrice });
+    // You can filter PRODUCTS client-side or send back to server
+  }
 
-    // Real-time Updates Script
-    const eventSource = new EventSource('/marketplace/updates');
-    eventSource.onmessage = function(e) {
-        const product = JSON.parse(e.data);
-        updateProductCard(product);
-    };
-
-    function updateProductCard(product) {
-        const card = document.querySelector(`#product-${product.id}`);
-        if (card) {
-            card.querySelector('.available-quantity').textContent = `${product.quantity} kg`;
-            card.querySelector('.price').textContent = `R${product.price}`;
+  function toggleWishlist(button) {
+    const productId = button.dataset.productId;
+    fetch(`/wishlist/add/${productId}`, { method: 'POST' })
+      .then(resp => resp.json())
+      .then(data => {
+        if (data.success) {
+          const icon = button.querySelector('i');
+          icon.classList.toggle('far');
+          icon.classList.toggle('fas');
         }
-    }
-</script>
+      });
+  }
 
-<!-- Price Range Slider -->
-<div class="mb-3">
-    <label class="form-label">Price Range</label>
-    <div class="slider-container">
-        <input type="range" class="form-range" id="priceSlider" min="0" max="1000" step="10">
-        <div class="d-flex justify-content-between">
-            <span id="minPriceDisplay">R0</span>
-            <span id="maxPriceDisplay">R1000</span>
-        </div>
-    </div>
-</div>
-{% endblock %}
+  // Real-time Updates via SSE
+  const eventSource = new EventSource('/marketplace/updates');
+  eventSource.onmessage = e => {
+    const updated = JSON.parse(e.data);
+    updateProductCard(updated);
+  };
+
+  function updateProductCard(p) {
+    const card = document.querySelector(`#product-${p.id}`);
+    if (!card) return;
+
+    // Update quantity badge
+    let qtyEl = card.querySelector('.available-quantity');
+    if (qtyEl) qtyEl.textContent = `${p.quantity} kg`;
+
+    // Update price
+    let priceEl = card.querySelector('.price');
+    if (priceEl) priceEl.textContent = `R${p.price}`;
+  }
+</script>
 {% endblock %}

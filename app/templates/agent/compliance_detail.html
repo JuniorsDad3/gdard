@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2"><i class="fas fa-clipboard-list"></i> Compliance Case #{{ case.id }}</h1>
+        <div class="btn-toolbar">
+            <div class="btn-group me-2">
+                <button class="btn btn-sm btn-outline-success">
+                    <i class="fas fa-check"></i> Mark Resolved
+                </button>
+                <button class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-times"></i> Escalate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    Case Details
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Farm</dt>
+                        <dd class="col-sm-9">{{ case.farm.name }}</dd>
+
+                        <dt class="col-sm-3">Issue Type</dt>
+                        <dd class="col-sm-9">{{ case.issue_type }}</dd>
+
+                        <dt class="col-sm-3">Severity</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-{{ 'danger' if case.severity == 'high' else 'warning' }}">
+                                {{ case.severity|title }}
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-3">Due Date</dt>
+                        <dd class="col-sm-9">{{ case.due_date|date_format }}</dd>
+                    </dl>
+
+                    <h5 class="mt-4">Case Description</h5>
+                    <p>{{ case.description }}</p>
+
+                    <h5 class="mt-4">Attachments</h5>
+                    <div class="list-group">
+                        {% for doc in case.documents %}
+                        <a href="{{ doc.url }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-pdf me-2"></i>{{ doc.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    Action History
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for event in case.history %}
+                        <div class="timeline-item mb-3">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">{{ event.timestamp|date_format }}</small>
+                                <p class="mb-0">{{ event.description }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
