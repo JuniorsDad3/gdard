@@ -10,7 +10,7 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret")
 
     # Path to Excel “database”
-    EXCEL_DB_PATH = os.getenv("EXCEL_DB_PATH", r"C:\Users\dell5348\gdard\GDARD.xlsx")
+EXCEL_DB_PATH = os.getenv("EXCEL_DB_PATH", "/data/GDARD.xlsx")
 
     # Optional API keys
     WEATHER_API_KEY   = os.getenv("WEATHER_API_KEY")

@@ -6,7 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app.excel_db import load_sheet, save_sheet
 from pathlib import Path
 
-EXCEL_FILE = Path(r"C:\Users\dell5348\gdard\GDARD.xlsx")
+BASE_DIR = Path(__file__).resolve().parent
+EXCEL_FILE = BASE_DIR / "data" / "GDARD.xlsx"
 
 # A simple base to share load/save by sheet name
 class ExcelModel:

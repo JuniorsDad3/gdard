@@ -16,7 +16,8 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Ensure GDARD.xlsx exists inside the container
-RUN mkdir -p /data && cp GDARD.xlsx /data/
+RUN mkdir -p /data && cp app/data/GDARD.xlsx /data/
+
 
 # Set environment variables for Flask
 ENV EXCEL_DB_PATH=/data/GDARD.xlsx
