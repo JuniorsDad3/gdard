@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}AgriSmart Transformation Portal{% endblock %}</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('index') }}">AgriSmart Portal</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+          {% if 'user' not in session %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Register</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link" href="#">{{ session['user'] }}</a></li>
+          {% endif %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('marketplace') }}">Marketplace</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('sell') }}">Sell Product</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#chatModal">AI Assistant</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash messages -->
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Content -->
+  <div class="container mt-3">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- AI Chatbot Modal -->
+  <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="chatModalLabel">AI Assistant</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="chatWindow" class="mb-3" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+            <!-- Chat messages will appear here -->
+          </div>
+          <div class="input-group">
+            <input type="text" id="userInput" class="form-control" placeholder="Type your question...">
+            <button class="btn btn-primary" id="sendBtn">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-success text-white text-center py-3 mt-4">
+    <div class="container">
+      <p>&copy; 2025 Department of Agriculture and Rural Development. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Chatbot JavaScript -->
+  <script>
+    document.getElementById('sendBtn').addEventListener('click', function() {
+      var userInput = document.getElementById('userInput').value;
+      if (userInput.trim() === "") return;
+      
+      var chatWindow = document.getElementById('chatWindow');
+      
+      // Append user's message
+      var userMsgDiv = document.createElement('div');
+      userMsgDiv.className = 'mb-2 text-end';
+      userMsgDiv.innerHTML = '<strong>You:</strong> ' + userInput;
+      chatWindow.appendChild(userMsgDiv);
+      
+      // Clear input field
+      document.getElementById('userInput').value = "";
+      
+      // Send the message to the backend
+      fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userInput })
+      })
+      .then(response => response.json())
+      .then(data => {
+        var aiMsgDiv = document.createElement('div');
+        aiMsgDiv.className = 'mb-2 text-start';
+        aiMsgDiv.innerHTML = '<strong>AI:</strong> ' + data.response;
+        chatWindow.appendChild(aiMsgDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      })
+      .catch(error => console.error('Error:', error));
+    });
+  </script>
+</body>
+</html>
