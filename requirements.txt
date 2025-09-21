@@ -197,9 +197,8 @@ python-dotenv==1.0.1
 python-engineio==4.11.2
 python-socketio==5.12.1
 pythonnet==3.0.5
+python-3.10.12
 pytz==2025.1
-pyunormalize==15.1.0
-pywin32==308
 PyYAML==6.0.1
 pyzmq==26.2.1
 qrcode==7.4.2
