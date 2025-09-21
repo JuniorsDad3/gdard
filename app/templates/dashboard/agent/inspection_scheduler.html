@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2"><i class="fas fa-calendar-alt"></i> Inspection Scheduling</h1>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newInspectionModal">
+            <i class="fas fa-plus"></i> New Inspection
+        </button>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            Scheduled Inspections
+        </div>
+        <div class="card-body">
+            <div id="inspectionCalendar" style="height: 600px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- New Inspection Modal -->
+<div class="modal fade" id="newInspectionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Schedule New Inspection</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Select Farm</label>
+                                <select class="form-select" name="farm_id" required>
+                                    {% for farm in farms %}
+                                    <option value="{{ farm.id }}">{{ farm.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Inspection Date</label>
+                                <input type="date" class="form-control" name="inspection_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Assigned Inspector</label>
+                                <select class="form-select" name="inspector_id" required>
+                                    {% for inspector in inspectors %}
+                                    <option value="{{ inspector.id }}">{{ inspector.full_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Inspection Type</label>
+                                <select class="form-select" name="inspection_type" required>
+                                    <option value="routine">Routine Check</option>
+                                    <option value="compliance">Compliance Audit</option>
+                                    <option value="special">Special Investigation</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notes/Instructions</label>
+                        <textarea class="form-control" name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Schedule Inspection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<!-- Include FullCalendar JS -->
+{% endblock %}
+{% endblock %}

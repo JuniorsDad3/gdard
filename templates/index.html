@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,3 +38,53 @@
     </div>
 </body>
 </html>
+=======
+{% extends "base.html" %}
+{% block title %}Home - AgriSmart Transformation Portal{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<section class="hero text-white text-center" style="background: url('https://via.placeholder.com/1920x600/228B22/FFFFFF?text=Agriculture+Innovation') no-repeat center center; background-size: cover; padding: 120px 0;">
+  <div class="container">
+    <h1 class="display-4 fw-bold">Transforming Agri‑Food Value Chains</h1>
+    <p class="lead">Empowering farmers, small businesses, and communities for sustainable development in Gauteng.</p>
+    <a href="{{ url_for('marketplace') }}" class="btn btn-light btn-lg">Explore Marketplace</a>
+  </div>
+</section>
+
+<!-- Mission Section -->
+<section id="mission" class="py-5">
+  <div class="container">
+    <h2 class="mb-4 text-center">Our Mission</h2>
+    <p class="text-center">
+      To economically transform agri‑food value chains and ensure sustainable, healthy, food‑secure, integrated, smart, and developed urban and rural communities in Gauteng.
+    </p>
+    <div class="row mt-4">
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Sustainable Environment</h5>
+            <p class="card-text">Adopt practices that protect our natural resources and promote sustainable growth.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Agri‑Food Inclusion</h5>
+            <p class="card-text">Enable inclusive participation in commercial agri‑food value chains and agro‑processing.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Food Security</h5>
+            <p class="card-text">Ensure access to nutritious food for all communities, bolstering resilience and health.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+>>>>>>> ce58d1a7f94c377313b41c7b43df280d045bcbd2

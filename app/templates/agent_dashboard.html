@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Agent Tools</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">
+                            <i class="fas fa-clipboard-list"></i> Pending Permits
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('support_programs') }}">
+                            <i class="fas fa-hand-holding-usd"></i> Manage Programs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-chart-bar"></i> Compliance Reports
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">GDARD Agent Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group mr-2">
+                        <button type="button" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-file-export"></i> Export Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-clock"></i> Pending Permits</h5>
+                            <h2 class="card-text">24</h2>
+                            <a href="#" class="btn btn-sm btn-success">Review Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-check-circle"></i> Approved Permits</h5>
+                            <h2 class="card-text">156</h2>
+                            <a href="#" class="btn btn-sm btn-success">View All</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-exclamation-triangle"></i> Compliance Issues</h5>
+                            <h2 class="card-text">8</h2>
+                            <a href="#" class="btn btn-sm btn-success">Investigate</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-list-alt"></i> Recent Compliance Activities</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Farm ID</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Last Inspection</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Sample Data -->
+                                <tr>
+                                    <td>FARM-0234</td>
+                                    <td>Pretoria</td>
+                                    <td><span class="badge badge-warning">Pending Review</span></td>
+                                    <td>2023-08-15</td>
+                                    <td><button class="btn btn-sm btn-outline-success">View Details</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

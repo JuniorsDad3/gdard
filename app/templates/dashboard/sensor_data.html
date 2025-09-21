@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="fas fa-microchip"></i> Farm Sensor Monitoring</h2>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-info-circle"></i> Sensor Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <i class="fas fa-thermometer-half"></i> Temperature Sensors
+                            <span class="badge badge-success float-right">3 Active</span>
+                        </div>
+                        <div class="list-group-item">
+                            <i class="fas fa-tint"></i> Soil Moisture Sensors
+                            <span class="badge badge-success float-right">2 Active</span>
+                        </div>
+                        <div class="list-group-item">
+                            <i class="fas fa-wind"></i> Weather Station
+                            <span class="badge badge-warning float-right">1 Offline</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-chart-line"></i> Real-time Sensor Data</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="sensorChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5><i class="fas fa-table"></i> Historical Data</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Temperature (°C)</th>
+                            <th>Soil Moisture (%)</th>
+                            <th>Humidity (%)</th>
+                            <th>Rainfall (mm)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reading in readings %}
+                        <tr>
+                            <td>{{ reading.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ reading.temperature|round(1) }}</td>
+                            <td>{{ reading.soil_moisture|round(1) }}</td>
+                            <td>{{ reading.humidity|round(1) }}</td>
+                            <td>{{ reading.rainfall|round(1) if reading.rainfall else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('sensorChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ timestamps|tojson }},
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: {{ temperatures|tojson }},
+                borderColor: '#dc3545',
+                tension: 0.1
+            },
+            {
+                label: 'Soil Moisture (%)',
+                data: {{ moistures|tojson }},
+                borderColor: '#28a745',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

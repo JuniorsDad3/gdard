@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2"><i class="fas fa-user-shield"></i> User Details: {{ user.full_name }}</h1>
+        <div class="btn-toolbar">
+            <div class="btn-group me-2">
+                <a href="#" class="btn btn-sm btn-outline-warning">
+                    <i class="fas fa-edit"></i> Edit User
+                </a>
+                <button class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-lock"></i> Disable Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    Basic Information
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-5">Account Status</dt>
+                        <dd class="col-sm-7">
+                            <span class="badge bg-{{ 'success' if user.active else 'danger' }}">
+                                {{ 'Active' if user.active else 'Inactive' }}
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-5">User Role</dt>
+                        <dd class="col-sm-7">{{ user.role|title }}</dd>
+
+                        <dt class="col-sm-5">Last Login</dt>
+                        <dd class="col-sm-7">{{ user.last_login|date_format }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    Activity Log
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for log in activity_logs %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">{{ log.timestamp|date_format }}</small>
+                                <span class="badge bg-info">{{ log.category }}</span>
+                            </div>
+                            <div class="mt-1">{{ log.description }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

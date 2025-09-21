@@ -1,0 +1,62 @@
+<!-- templates/chat.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            Chat with {{ recipient.username }}
+        </div>
+        <div class="card-body" style="height: 400px; overflow-y: scroll" id="chat-box">
+            {% for message in messages %}
+            <div class="message {% if message.sender_id == current_user.id %}text-right{% endif %}">
+                <div class="alert {% if message.sender_id == current_user.id %}alert-success{% else %}alert-light{% endif %}">
+                    {{ message.content }}
+                    <div class="small text-muted">{{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="card-footer">
+            <form id="chat-form">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="message-input">
+                    <div class="input-group-append">
+                        <button class="btn btn-success" type="submit">Send</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    const socket = io();
+    
+    socket.on('new_message', function(data) {
+        const chatBox = document.getElementById('chat-box');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${data.sender_id == {{ current_user.id }} ? 'text-right' : ''}`;
+        messageDiv.innerHTML = `
+            <div class="alert ${data.sender_id == {{ current_user.id }} ? 'alert-success' : 'alert-light'}">
+                ${data.content}
+                <div class="small text-muted">${new Date().toLocaleString()}</div>
+            </div>
+        `;
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    document.getElementById('chat-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const input = document.getElementById('message-input');
+        socket.emit('message', {
+            content: input.value,
+            sender_id: {{ current_user.id }},
+            receiver_id: {{ recipient.id }}
+        });
+        input.value = '';
+    });
+</script>
+{% endblock %}

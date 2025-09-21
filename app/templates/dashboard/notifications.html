@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2"><i class="fas fa-bell"></i> Notifications</h1>
+        <button class="btn btn-sm btn-outline-success">
+            <i class="fas fa-check-double"></i> Mark All as Read
+        </button>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            Recent Alerts
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {% for notification in notifications %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-1">{{ notification.title }}</h6>
+                            <p class="mb-0 text-muted">{{ notification.message }}</p>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">{{ notification.time|date_format }}</small>
+                            <div class="mt-2">
+                                {% if notification.unread %}
+                                <span class="badge bg-danger">New</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2"><i class="fas fa-globe-africa"></i> Regional Overview</h1>
+        <div class="btn-toolbar">
+            <div class="btn-group me-2">
+                <select class="form-select" id="timePeriod">
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                    <option>Year to Date</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    Regional Distribution
+                </div>
+                <div class="card-body" style="height: 500px;">
+                    <div id="regionalMap"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    Quick Stats
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <h5>Total Farms</h5>
+                                    <h2 class="text-success">1,234</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="card border-info">
+                                <div class="card-body text-center">
+                                    <h5>Active Permits</h5>
+                                    <h2 class="text-info">890</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<!-- Map visualization scripts -->
+{% endblock %}
+{% endblock %}

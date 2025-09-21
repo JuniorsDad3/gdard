@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        {% include 'dashboard/farmer/sidebar.html' %}
+        
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <h2 class="mt-4">Planting Calendar</h2>
+            <div id="calendar" class="mt-4"></div>
+        </main>
+    </div>
+</div>
+
+{% block scripts %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: [
+                {% for event in schedule %}
+                {
+                    title: '{{ event.crop_type }} Planting',
+                    start: '{{ event.start_date }}',
+                    end: '{{ event.end_date }}',
+                    color: '#28a745'
+                },
+                {% endfor %}
+            ]
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}
+{% endblock %}

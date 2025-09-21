@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Home - AgriSmart Transformation Portal{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<section class="hero text-white text-center" style="background: url('https://via.placeholder.com/1920x600/228B22/FFFFFF?text=Agriculture+Innovation') no-repeat center center; background-size: cover; padding: 120px 0;">
+  <div class="container">
+    <h1 class="display-4 fw-bold">Transforming Agri‑Food Value Chains</h1>
+    <p class="lead">Empowering farmers, small businesses, and communities for sustainable development in Gauteng.</p>
+    <a href="{{ url_for('marketplace') }}" class="btn btn-light btn-lg me-2"><i class="fas fa-store"></i> Explore Marketplace</a>
+    <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg"><i class="fas fa-user-plus"></i> Join Now</a>
+  </div>
+</section>
+
+<!-- Featured Products Section -->
+<section id="featured-products" class="py-5 bg-light">
+  <div class="container">
+    <h2 class="mb-4 text-center">Featured Products</h2>
+    <div class="row">
+      {% for product in featured_products %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow">
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text"><strong>Category:</strong> {{ product.category }}</p>
+            <p class="card-text"><strong>Price:</strong> {{ product.price }}</p>
+            <p class="card-text">{{ product.description }}</p>
+            <a href="#" class="btn btn-success"><i class="fas fa-shopping-cart"></i> Buy Now</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section id="testimonials" class="py-5">
+  <div class="container">
+    <h2 class="mb-4 text-center">What Our Users Say</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <blockquote class="blockquote mb-0">
+              <p>"AgriSmart has transformed my farming business. Highly recommended!"</p>
+              <footer class="blockquote-footer">John Doe, Farmer</footer>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <blockquote class="blockquote mb-0">
+              <p>"The marketplace is easy to use, and I found great buyers for my produce."</p>
+              <footer class="blockquote-footer">Jane Smith, Seller</footer>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <blockquote class="blockquote mb-0">
+              <p>"The AI assistant is a game-changer for managing my farm."</p>
+              <footer class="blockquote-footer">Mike Johnson, AgriTech Enthusiast</footer>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Gamification Section -->
+<section id="gamification" class="py-5 bg-light">
+  <div class="container">
+    <h2 class="mb-4 text-center">Earn Rewards</h2>
+    <p class="text-center">Buy and sell products to earn points and unlock exclusive rewards!</p>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i class="fas fa-trophy"></i> Top Seller</h5>
+            <p class="card-text">Earn points for every product sold and become a top seller.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i class="fas fa-gift"></i> Exclusive Rewards</h5>
+            <p class="card-text">Redeem points for discounts, vouchers, and more.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i class="fas fa-star"></i> Leaderboard</h5>
+            <p class="card-text">Compete with other users and climb the leaderboard.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

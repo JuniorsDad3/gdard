@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Marketplace - AgriSmart Transformation Portal{% endblock %}
+{% block content %}
+<h2 class="mb-4 text-center">Marketplace</h2>
+
+<!-- Search and Filters -->
+<div class="row mb-4">
+  <div class="col-md-6">
+    <input type="text" class="form-control" id="searchInput" placeholder="Search products...">
+  </div>
+  <div class="col-md-3">
+    <select class="form-select" id="categoryFilter">
+      <option value="">All Categories</option>
+      <option value="Poultry">Poultry</option>
+      <option value="Vegetables">Vegetables</option>
+      <option value="Fruits">Fruits</option>
+      <option value="Dairy">Dairy</option>
+      <option value="Grains">Grains</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <select class="form-select" id="priceFilter">
+      <option value="">Price Range</option>
+      <option value="0-50">R0 - R50</option>
+      <option value="50-100">R50 - R100</option>
+      <option value="100-200">R100 - R200</option>
+      <option value="200+">R200+</option>
+    </select>
+  </div>
+</div>
+
+<!-- Product List -->
+<div class="row" id="productList">
+  {% for product in products %}
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 shadow">
+      <div class="card-body">
+        <h5 class="card-title">{{ product.name }}</h5>
+        <p class="card-text"><strong>Category:</strong> {{ product.category }}</p>
+        <p class="card-text"><strong>Price:</strong> {{ product.price }}</p>
+        <p class="card-text">{{ product.description }}</p>
+        <a href="#" class="btn btn-success"><i class="fas fa-shopping-cart"></i> Buy Now</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- AI Recommendations -->
+<div class="row mt-4">
+  <div class="col-md-12">
+    <h3 class="mb-3">Recommended for You</h3>
+    <div class="row" id="recommendedProducts">
+      {% for product in recommended_products %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow">
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text"><strong>Category:</strong> {{ product.category }}</p>
+            <p class="card-text"><strong>Price:</strong> {{ product.price }}</p>
+            <p class="card-text">{{ product.description }}</p>
+            <a href="#" class="btn btn-success"><i class="fas fa-shopping-cart"></i> Buy Now</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for Filters -->
+<script>
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const searchValue = this.value.toLowerCase();
+    filterProducts();
+  });
+
+  document.getElementById('categoryFilter').addEventListener('change', function() {
+    filterProducts();
+  });
+
+  document.getElementById('priceFilter').addEventListener('change', function() {
+    filterProducts();
+  });
+
+  function filterProducts() {
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
+    const categoryValue = document.getElementById('categoryFilter').value;
+    const priceValue = document.getElementById('priceFilter').value;
+
+    document.querySelectorAll('#productList .col-md-4').forEach(function(product) {
+      const productText = product.textContent.toLowerCase();
+      const productCategory = product.querySelector('.card-text').textContent.split(':')[1].trim();
+      const productPrice = parseFloat(product.querySelectorAll('.card-text')[1].textContent.split(':')[1].trim().replace('R', ''));
+
+      const matchesSearch = productText.includes(searchValue);
+      const matchesCategory = categoryValue === "" || productCategory === categoryValue;
+      const matchesPrice = priceValue === "" || (
+        (priceValue === "0-50" && productPrice <= 50) ||
+        (priceValue === "50-100" && productPrice > 50 && productPrice <= 100) ||
+        (priceValue === "100-200" && productPrice > 100 && productPrice <= 200) ||
+        (priceValue === "200+" && productPrice > 200)
+      );
+
+      if (matchesSearch && matchesCategory && matchesPrice) {
+        product.style.display = 'block';
+      } else {
+        product.style.display = 'none';
+      }
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+<div class="col-md-2 d-none d-md-block bg-light sidebar">
+    <div class="sidebar-sticky">
+        <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted">
+            Agent Navigation
+        </h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('routes.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i> Overview
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('routes.list_permits') }}">
+                    <i class="fas fa-file-contract"></i> Permits
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('routes.compliance_reports') }}">
+                    <i class="fas fa-clipboard-check"></i> Compliance
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

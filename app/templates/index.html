@@ -1,0 +1,43 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-4">Welcome to GDARD Smart Agriculture Platform</h1>
+    <p class="lead">Empowering Gauteng Farmers with Digital Solutions</p>
+    <hr class="my-4">
+    <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="fas fa-seedling feature-icon"></i>
+                    <h3>Farmer Registration</h3>
+                    <p>Register your farm and access government support programs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="fas fa-chart-line feature-icon"></i>
+                    <h3>Marketplace</h3>
+                    <p>Connect directly with buyers and retailers across Gauteng</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="fas fa-cloud-sun-rain feature-icon"></i>
+                    <h3>Weather Insights</h3>
+                    <p>Real-time agricultural weather data and predictions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a class="btn btn-success btn-lg mr-3" href="/register" role="button">Get Started</a>
+        <a class="btn btn-outline-success btn-lg" href="/marketplace" role="button">Browse Marketplace</a>
+    </div>
+</div>
+{% endblock %}
