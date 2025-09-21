@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Update Drone Data</h2>
+
+    {% if drones %}
+        {% for drone in drones %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-dark text-white">
+                Drone #{{ drone.id }} - {{ drone.name }}
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_drone', farm_id=farm.id, drone_id=drone.id) }}">
+                    <div class="mb-3">
+                        <label class="form-label">Drone Name</label>
+                        <input type="text" class="form-control" name="name" value="{{ drone.name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control">
+                            <option value="active" {% if drone.status == 'active' %}selected{% endif %}>Active</option>
+                            <option value="inactive" {% if drone.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                            <option value="maintenance" {% if drone.status == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Latest Flight Log</label>
+                        <textarea class="form-control" name="log">{{ drone.log }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-dark">Update Drone</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-warning">No drone records found.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Settings - Farm Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --farm-primary: #2e7d32;
+            --farm-secondary: #7cb342;
+            --farm-light: #f1f8e9;
+            --farm-dark: #1b5e20;
+            --temp-color: #ff6b6b;
+            --humidity-color: #4dabf7;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--farm-primary), var(--farm-dark));
+            color: white;
+            font-weight: 600;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.25rem;
+        }
+        
+        .btn-farm {
+            background-color: var(--farm-primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-farm:hover {
+            background-color: var(--farm-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .form-control:focus {
+            border-color: var(--farm-secondary);
+            box-shadow: 0 0 0 0.25rem rgba(126, 179, 66, 0.25);
+        }
+        
+        .sensor-card {
+            border-left: 4px solid;
+            transition: transform 0.3s;
+        }
+        
+        .sensor-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .temp-card {
+            border-left-color: var(--temp-color);
+        }
+        
+        .humidity-card {
+            border-left-color: var(--humidity-color);
+        }
+        
+        .sensor-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .temp-icon {
+            color: var(--temp-color);
+        }
+        
+        .humidity-icon {
+            color: var(--humidity-color);
+        }
+        
+        .current-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .threshold-input {
+            position: relative;
+        }
+        
+        .threshold-input input {
+            padding-left: 40px;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+        
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            max-width: 350px;
+        }
+        
+        .slider-container {
+            margin-top: 1rem;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .temp-slider {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+        }
+        
+        .humidity-slider {
+            background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--farm-primary);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .recommended {
+            background-color: var(--farm-light);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-left: 3px solid var(--farm-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Success/Error Messages Container -->
+                <div class="alert-container">
+                    <!-- Messages will be dynamically inserted here -->
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-sliders me-2"></i>
+                        Update Sensor Thresholds
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <!-- Current Readings Sidebar -->
+                            <div class="col-md-5">
+                                <div class="card sensor-card temp-card mb-4">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-thermometer-half sensor-icon temp-icon"></i>
+                                        <div class="current-value" id="currentTemp">
+                                            {{ iot_data.get('temperature', {}).get('value', 'N/A') }}°C
+                                        </div>
+                                        <p class="text-muted">Current Temperature</p>
+                                        <div class="status-badge mt-2" id="tempStatus">
+                                            <span class="badge bg-success">Normal</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card sensor-card humidity-card">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-droplet-half sensor-icon humidity-icon"></i>
+                                        <div class="current-value" id="currentHumidity">
+                                            {{ iot_data.get('humidity', {}).get('value', 'N/A') }}%
+                                        </div>
+                                        <p class="text-muted">Current Humidity</p>
+                                        <div class="status-badge mt-2" id="humidityStatus">
+                                            <span class="badge bg-success">Normal</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Recommended Values -->
+                                <div class="recommended mt-4">
+                                    <h6><i class="bi bi-lightbulb me-2"></i>Recommended Values</h6>
+                                    <p class="mb-1">Temperature: 18°C - 28°C</p>
+                                    <p class="mb-0">Humidity: 40% - 70%</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Threshold Settings Form -->
+                            <div class="col-md-7">
+                                <form method="POST" action="{{ url_for('update_sensor') }}" id="sensorForm">
+                                    <!-- Temperature Threshold -->
+                                    <div class="mb-4">
+                                        <label for="temperature" class="form-label fw-semibold">
+                                            <i class="bi bi-thermometer-half me-1"></i>Temperature Threshold (°C)
+                                        </label>
+                                        <div class="threshold-input">
+                                            <i class="bi bi-thermometer-high input-icon"></i>
+                                            <input type="number" class="form-control form-control-lg" 
+                                                   id="temperature" name="temperature" 
+                                                   value="{{ iot_data.get('temperature', {}).get('value', '') }}"
+                                                   min="0" max="50" step="0.1" required>
+                                        </div>
+                                        <div class="slider-container">
+                                            <input type="range" class="slider temp-slider" id="tempSlider" 
+                                                   min="0" max="50" step="0.5" 
+                                                   value="{{ iot_data.get('temperature', {}).get('value', 25) }}">
+                                        </div>
+                                        <div class="value-display">
+                                            <span>0°C</span>
+                                            <span id="tempValue">{{ iot_data.get('temperature', {}).get('value', 25) }}°C</span>
+                                            <span>50°C</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Humidity Threshold -->
+                                    <div class="mb-4">
+                                        <label for="humidity" class="form-label fw-semibold">
+                                            <i class="bi bi-droplet-half me-1"></i>Humidity Threshold (%)
+                                        </label>
+                                        <div class="threshold-input">
+                                            <i class="bi bi-moisture input-icon"></i>
+                                            <input type="number" class="form-control form-control-lg" 
+                                                   id="humidity" name="humidity" 
+                                                   value="{{ iot_data.get('humidity', {}).get('value', '') }}"
+                                                   min="0" max="100" step="1" required>
+                                        </div>
+                                        <div class="slider-container">
+                                            <input type="range" class="slider humidity-slider" id="humiditySlider" 
+                                                   min="0" max="100" step="1" 
+                                                   value="{{ iot_data.get('humidity', {}).get('value', 50) }}">
+                                        </div>
+                                        <div class="value-display">
+                                            <span>0%</span>
+                                            <span id="humidityValue">{{ iot_data.get('humidity', {}).get('value', 50) }}%</span>
+                                            <span>100%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-farm btn-lg">
+                                            <i class="bi bi-check-circle me-2"></i>Save Settings
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sensor Status Card -->
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-clipboard-data me-2"></i>
+                        Sensor Status
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Temperature History</h6>
+                                <canvas id="tempChart" height="120"></canvas>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Humidity History</h6>
+                                <canvas id="humidityChart" height="120"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initialize sliders and sync with number inputs
+        const tempInput = document.getElementById('temperature');
+        const tempSlider = document.getElementById('tempSlider');
+        const tempValue = document.getElementById('tempValue');
+        
+        const humidityInput = document.getElementById('humidity');
+        const humiditySlider = document.getElementById('humiditySlider');
+        const humidityValue = document.getElementById('humidityValue');
+        
+        // Sync temperature input and slider
+        tempInput.addEventListener('input', function() {
+            tempSlider.value = this.value;
+            tempValue.textContent = this.value + '°C';
+            updateStatus('temp', parseFloat(this.value));
+        });
+        
+        tempSlider.addEventListener('input', function() {
+            tempInput.value = this.value;
+            tempValue.textContent = this.value + '°C';
+            updateStatus('temp', parseFloat(this.value));
+        });
+        
+        // Sync humidity input and slider
+        humidityInput.addEventListener('input', function() {
+            humiditySlider.value = this.value;
+            humidityValue.textContent = this.value + '%';
+            updateStatus('humidity', parseFloat(this.value));
+        });
+        
+        humiditySlider.addEventListener('input', function() {
+            humidityInput.value = this.value;
+            humidityValue.textContent = this.value + '%';
+            updateStatus('humidity', parseFloat(this.value));
+        });
+        
+        // Update status indicators based on values
+        function updateStatus(type, value) {
+            const statusElement = document.getElementById(type + 'Status');
+            let status = 'Normal';
+            let badgeClass = 'bg-success';
+            
+            if (type === 'temp') {
+                if (value < 15) {
+                    status = 'Too Low';
+                    badgeClass = 'bg-info';
+                } else if (value > 30) {
+                    status = 'Too High';
+                    badgeClass = 'bg-danger';
+                }
+            } else if (type === 'humidity') {
+                if (value < 30) {
+                    status = 'Too Low';
+                    badgeClass = 'bg-info';
+                } else if (value > 80) {
+                    status = 'Too High';
+                    badgeClass = 'bg-danger';
+                }
+            }
+            
+            statusElement.innerHTML = `<span class="badge ${badgeClass}">${status}</span>`;
+        }
+        
+        // Initialize status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('temp', parseFloat(tempInput.value || 25));
+            updateStatus('humidity', parseFloat(humidityInput.value || 50));
+            
+            // Initialize charts
+            initCharts();
+        });
+        
+        // Form submission handling
+        document.getElementById('sensorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate inputs
+            const tempValue = parseFloat(tempInput.value);
+            const humidityValue = parseFloat(humidityInput.value);
+            
+            if (isNaN(tempValue) || isNaN(humidityValue)) {
+                showAlert('Please enter valid numbers for all fields', 'danger');
+                return;
+            }
+            
+            if (tempValue < 0 || tempValue > 50) {
+                showAlert('Temperature must be between 0°C and 50°C', 'danger');
+                return;
+            }
+            
+            if (humidityValue < 0 || humidityValue > 100) {
+                showAlert('Humidity must be between 0% and 100%', 'danger');
+                return;
+            }
+            
+            // Simulate successful save
+            showAlert('Sensor thresholds updated successfully!', 'success');
+            
+            // In a real application, you would submit the form here
+            // this.submit();
+        });
+        
+        // Show alert message
+        function showAlert(message, type) {
+            const alertContainer = document.querySelector('.alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertContainer.appendChild(alert);
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        }
+        
+        // Initialize charts
+        function initCharts() {
+            // Temperature chart
+            const tempCtx = document.getElementById('tempChart').getContext('2d');
+            new Chart(tempCtx, {
+                type: 'line',
+                data: {
+                    labels: ['10:00', '11:00', '12:00', '13:00', '14:00', 'Now'],
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: [22, 24, 26, 25, 23, 24],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 20,
+                            max: 30
+                        }
+                    }
+                }
+            });
+            
+            // Humidity chart
+            const humidityCtx = document.getElementById('humidityChart').getContext('2d');
+            new Chart(humidityCtx, {
+                type: 'line',
+                data: {
+                    labels: ['10:00', '11:00', '12:00', '13:00', '14:00', 'Now'],
+                    datasets: [{
+                        label: 'Humidity (%)',
+                        data: [65, 60, 55, 50, 52, 54],
+                        borderColor: '#4dabf7',
+                        backgroundColor: 'rgba(77, 171, 247, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 40,
+                            max: 70
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

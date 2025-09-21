@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GDARD | Government Agent Portal</title>
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+:root {
+    --gdard-green: #2e856e;
+    --gdard-light: #f8f9fa;
+    --gdard-dark: #343a40;
+}
+body { background-color: var(--gdard-light); }
+.sidebar { background-color: var(--gdard-green); color: white; height: 100vh; position: fixed; transition: all 0.3s; }
+.sidebar .nav-link { color: rgba(255,255,255,0.85); border-left:3px solid transparent; margin-bottom:5px; transition: all 0.2s; }
+.sidebar .nav-link:hover, .sidebar .nav-link.active { color:white; background-color: rgba(255,255,255,0.1); border-left:3px solid white; }
+.sidebar .nav-link i { width: 20px; text-align:center; margin-right:8px; }
+.main-content { margin-left:250px; padding:20px; }
+.card-gdard { border-left:4px solid var(--gdard-green); transition: transform 0.2s, box-shadow 0.2s; }
+.card-gdard:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.compliance-badge { position:absolute; right:10px; top:10px; }
+.map-container { height:400px; background-color:#eee; border-radius:5px; overflow:hidden; position:relative; }
+.list-group-item-action:hover { background-color: #f1f1f1; }
+.alert-fade { opacity:0; animation: fadeIn 1s forwards; }
+@keyframes fadeIn { to { opacity:1; } }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar col-md-3 col-lg-2 d-md-block p-0">
+    <div class="text-center p-4">
+        <img src="{{ url_for('static', filename='images/gdard-logo.png') }}" alt="GDARD Logo" class="img-fluid mb-3" style="max-height: 80px;">
+        <h5 class="mb-0">Smart Agriculture Platform</h5>
+        <small class="text-white-50">Government Agent Portal</small>
+    </div>
+    <hr class="bg-light mx-3">
+    <div class="px-3">
+        <div class="d-flex align-items-center mb-4">
+            <img src="{{ url_for('static', filename='images/user-avatar.png') }}" class="rounded-circle me-2" width="40">
+            <div>
+                <div class="fw-bold">{{ current_user.username }}</div>
+                <small class="text-white-50">Administrator</small>
+            </div>
+        </div>
+    </div>
+    <ul class="nav flex-column px-3">
+        <li class="nav-item"><a class="nav-link active" href="{{ url_for('agent_dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('compliance') }}"><i class="fas fa-clipboard-check"></i> Compliance Monitoring</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('farms') }}"><i class="fas fa-tractor"></i> Farm Management</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('subsidies') }}"><i class="fas fa-hand-holding-usd"></i> Subsidy Programs</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('reports') }}"><i class="fas fa-chart-bar"></i> Analytics & Reports</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('inspections') }}"><i class="fas fa-users"></i> Inspections</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('farms') }}"><i class="fas fa-cog"></i> Farms</a></li>
+    </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2" id="tab-title">Agent Dashboard</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <a href="{{ url_for('export_dashboard') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download"></i> Export</a>
+                <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-calendar"></i> This Month</button>
+            </div>
+            <a href="{{ url_for('new_inspection') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> New Inspection</a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card card-gdard shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <i class="fas fa-tractor fa-2x text-success me-3"></i>
+                    <div>
+                        <h5 class="card-title mb-1">Total Registered Farms</h5>
+                        <h2 class="mb-0" id="totalFarms">{{ total_farms }}</h2>
+                        <small class="text-success">↑ 12% from last month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-gdard shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <i class="fas fa-clipboard-check fa-2x text-primary me-3"></i>
+                    <div>
+                        <h5 class="card-title mb-1">Compliance Rate</h5>
+                        <h2 class="mb-0" id="complianceRate">{{ compliance_rate }}%</h2>
+                        <small class="text-success">↑ 5% from last quarter</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-gdard shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <i class="fas fa-hand-holding-usd fa-2x text-warning me-3"></i>
+                    <div>
+                        <h5 class="card-title mb-1">Active Subsidies</h5>
+                        <h2 class="mb-0" id="activeSubsidies">{{ active_subsidies }}</h2>
+                        <small class="text-danger">↓ 3% from last year</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-gdard shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <i class="fas fa-tasks fa-2x text-info me-3"></i>
+                    <div>
+                        <h5 class="card-title mb-1">Extension Requests</h5>
+                        <h2 class="mb-0" id="extensionRequests">{{ extension_requests }}</h2>
+                        <small class="text-warning">Pending: {{ pending_requests }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Farms Overview -->
+    <div class="row mb-4">
+        {% for farm in farms %}
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-tractor me-2"></i>{{ farm.name }}
+                    <span class="badge bg-{{ 'success' if farm.compliance_score >= 80 else 'warning' if farm.compliance_score >=50 else 'danger' }} compliance-badge">{{ farm.compliance_score }}%</span>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Owner:</dt><dd class="col-sm-8">{{ farm.owner.username }}</dd>
+                        <dt class="col-sm-4">Location:</dt><dd class="col-sm-8">{{ farm.location }}</dd>
+                        <dt class="col-sm-4">Size:</dt><dd class="col-sm-8">{{ farm.size }} ha</dd>
+                        <dt class="col-sm-4">Main Crop:</dt><dd class="col-sm-8">{{ farm.main_crop }}</dd>
+                        <dt class="col-sm-4">Irrigation:</dt>
+                        <dd class="col-sm-8">{% if farm.irrigation %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</dd>
+                    </dl>
+                    <a href="{{ url_for('view_farm', farm_id=farm.id) }}" class="btn btn-sm btn-primary mt-2">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Sensors Overview -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-microchip me-2"></i> Sensor Data</span>
+            <small class="text-muted">Last updated: {{ sensors[0].last_updated if sensors else 'Never' }}</small>
+        </div>
+        <div class="card-body">
+            {% if sensors %}
+            <div class="row text-center">
+                {% for sensor in sensors %}
+                <div class="col-md-3">
+                    <h5>{{ sensor.sensor_type|title }}</h5>
+                    <div class="display-4">{{ sensor.last_reading.value }}</div>
+                    <small class="text-muted">{{ sensor.last_reading.unit }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-3 text-muted">No sensors registered</div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Animated counters
+function animateCounter(id, endValue, suffix='') {
+    const element = document.getElementById(id);
+    let start = 0;
+    const duration = 1500;
+    const stepTime = 30;
+    const increment = endValue / (duration / stepTime);
+    const counter = setInterval(() => {
+        start += increment;
+        if (start >= endValue) { element.textContent = endValue + suffix; clearInterval(counter);}
+        else { element.textContent = Math.floor(start) + suffix; }
+    }, stepTime);
+}
+window.addEventListener('DOMContentLoaded', () => {
+    animateCounter('totalFarms', {{ total_farms }});
+    animateCounter('complianceRate', {{ compliance_rate }}, '%');
+    animateCounter('activeSubsidies', {{ active_subsidies }});
+    animateCounter('extensionRequests', {{ extension_requests }});
+});
+</script>
+
+</body>
+</html>

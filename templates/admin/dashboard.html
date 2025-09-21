@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
+            <div class="sidebar-sticky">
+                <div class="text-center my-4">
+                    <img src="{{ url_for('static', filename='images/gdard-logo.png') }}" 
+                         class="rounded-circle" width="80" alt="GDARD Logo">
+                    <h5 class="mt-2 text-white">GDARD Admin</h5>
+                    <p class="text-muted small">Smart Agriculture Platform</p>
+                </div>
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active text-white" href="#">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">
+                            <i class="fas fa-users"></i> Farmers
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">
+                            <i class="fas fa-map-marked-alt"></i> Regional Data
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">
+                            <i class="fas fa-chart-pie"></i> Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">
+                            <i class="fas fa-cog"></i> System Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">GDARD Administration Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group mr-2">
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-calendar"></i> Date Range
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ farm_count }}</h5>
+                            <p class="card-text">Registered Farms</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ user_count }}</h5>
+                            <p class="card-text">System Users</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-info mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">12</h5>
+                            <p class="card-text">Active Programs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">24</h5>
+                            <p class="card-text">Pending Requests</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regional Data -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-map mr-1"></i>
+                    Regional Agricultural Data
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for region, data in regions.items() %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-secondary text-white">
+                                    {{ region }}
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Farms:</strong> {{ data.farms }}</p>
+                                    <p><strong>Main Crops:</strong> {{ data.crops|join(', ') }}</p>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-success" 
+                                             style="width: {{ (data.farms/farm_count)*100 }}%">
+                                            {{ ((data.farms/farm_count)*100)|round(1) }}%
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            Recent System Activity
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    New farm registration
+                                    <span class="badge badge-primary badge-pill">2h ago</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Soil report submitted
+                                    <span class="badge badge-primary badge-pill">4h ago</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Extension officer assigned
+                                    <span class="badge badge-primary badge-pill">1d ago</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            Quick Actions
+                        </div>
+                        <div class="card-body text-center">
+                            <button class="btn btn-primary m-2">
+                                <i class="fas fa-user-plus"></i> Add User
+                            </button>
+                            <button class="btn btn-success m-2">
+                                <i class="fas fa-bullhorn"></i> Send Announcement
+                            </button>
+                            <button class="btn btn-info m-2">
+                                <i class="fas fa-file-import"></i> Import Data
+                            </button>
+                            <button class="btn btn-warning m-2">
+                                <i class="fas fa-chart-bar"></i> Generate Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

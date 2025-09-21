@@ -1,0 +1,61 @@
+<!-- templates/farmer/logout.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logout</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .logout-container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .logout-container h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .logout-container button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .logout-container button:hover {
+            background-color: #c0392b;
+        }
+        a.cancel {
+            display: block;
+            margin-top: 15px;
+            color: #3498db;
+            text-decoration: none;
+        }
+        a.cancel:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <h1>Are you sure you want to logout?</h1>
+        <form method="POST" action="{{ url_for('logout') }}">
+            <button type="submit">Logout</button>
+        </form>
+        <a class="cancel" href="{{ url_for('farmer_dashboard') }}">Cancel</a>
+    </div>
+</body>
+</html>

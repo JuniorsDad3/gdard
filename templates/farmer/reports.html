@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Reports - Farm Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --farm-primary: #2e7d32;
+            --farm-secondary: #7cb342;
+            --farm-light: #f1f8e9;
+            --farm-dark: #1b5e20;
+            --report-color-1: #4e73df;
+            --report-color-2: #1cc88a;
+            --report-color-3: #36b9cc;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--farm-primary), var(--farm-dark));
+            color: white;
+            font-weight: 600;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.25rem;
+        }
+        
+        .btn-farm {
+            background-color: var(--farm-primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-farm:hover {
+            background-color: var(--farm-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-outline-farm {
+            color: var(--farm-primary);
+            border-color: var(--farm-primary);
+            background: transparent;
+        }
+        
+        .btn-outline-farm:hover {
+            background-color: var(--farm-primary);
+            color: white;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--farm-secondary);
+            box-shadow: 0 0 0 0.25rem rgba(126, 179, 66, 0.25);
+        }
+        
+        .report-card {
+            border-left: 4px solid;
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .report-card-1 {
+            border-left-color: var(--report-color-1);
+        }
+        
+        .report-card-2 {
+            border-left-color: var(--report-color-2);
+        }
+        
+        .report-card-3 {
+            border-left-color: var(--report-color-3);
+        }
+        
+        .report-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        
+        .report-icon-1 {
+            color: var(--report-color-1);
+        }
+        
+        .report-icon-2 {
+            color: var(--report-color-2);
+        }
+        
+        .report-icon-3 {
+            color: var(--report-color-3);
+        }
+        
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            max-width: 350px;
+        }
+        
+        .date-input-container {
+            position: relative;
+        }
+        
+        .date-input-container i {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+        
+        .date-input-container input {
+            padding-left: 40px;
+        }
+        
+        .report-preview {
+            background-color: var(--farm-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+        
+        .stat-badge {
+            font-size: 0.85rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .chart-container {
+            height: 250px;
+            margin-top: 1.5rem;
+        }
+        
+        .report-summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e3e6f0;
+        }
+        
+        .report-summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .report-type-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .report-type-btn {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .report-type-btn.active {
+            background-color: var(--farm-primary);
+            color: white;
+            border-color: var(--farm-primary);
+        }
+        
+        .report-type-btn i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .custom-range::-webkit-slider-thumb {
+            background: var(--farm-primary);
+        }
+        
+        .custom-range::-moz-range-thumb {
+            background: var(--farm-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Success/Error Messages Container -->
+                <div class="alert-container">
+                    <!-- Messages will be dynamically inserted here -->
+                </div>
+                
+                <h1 class="h3 mb-4 text-center">Farm Reports & Analytics</h1>
+                
+                <!-- Report Type Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="card report-card report-card-1">
+                            <div class="card-body text-center">
+                                <i class="bi bi-calendar-week report-icon report-icon-1"></i>
+                                <h5>Daily Reports</h5>
+                                <p class="text-muted">Detailed analysis of daily farm operations</p>
+                                <span class="stat-badge bg-primary">Last: Today</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card report-card report-card-2">
+                            <div class="card-body text-center">
+                                <i class="bi bi-calendar-range report-icon report-icon-2"></i>
+                                <h5>Weekly Reports</h5>
+                                <p class="text-muted">Weekly trends and performance metrics</p>
+                                <span class="stat-badge bg-success">Last: This Week</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card report-card report-card-3">
+                            <div class="card-body text-center">
+                                <i class="bi bi-graph-up report-icon report-icon-3"></i>
+                                <h5>Monthly Reports</h5>
+                                <p class="text-muted">Comprehensive monthly analysis</p>
+                                <span class="stat-badge bg-info">Last: This Month</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Report Generation Card -->
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-file-earmark-bar-graph me-2"></i>
+                        Generate Farm Report
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Report Type Selector -->
+                        <div class="report-type-selector mb-4">
+                            <div class="report-type-btn active" data-type="daily">
+                                <i class="bi bi-calendar-day"></i>
+                                <span>Daily</span>
+                            </div>
+                            <div class="report-type-btn" data-type="weekly">
+                                <i class="bi bi-calendar-week"></i>
+                                <span>Weekly</span>
+                            </div>
+                            <div class="report-type-btn" data-type="monthly">
+                                <i class="bi bi-calendar-month"></i>
+                                <span>Monthly</span>
+                            </div>
+                        </div>
+                        
+                        <form method="POST" action="{{ url_for('generate_report') }}" id="reportForm">
+                            <input type="hidden" id="reportType" name="report_type" value="daily">
+                            
+                            <!-- Date Selection (Dynamic based on report type) -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="startDate" class="form-label fw-semibold">Start Date</label>
+                                    <div class="date-input-container">
+                                        <i class="bi bi-calendar"></i>
+                                        <input type="date" class="form-control" id="startDate" name="start_date" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="endDate" class="form-label fw-semibold">End Date</label>
+                                    <div class="date-input-container">
+                                        <i class="bi bi-calendar"></i>
+                                        <input type="date" class="form-control" id="endDate" name="end_date" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Report Options -->
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Report Options</label>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="includeCharts" name="include_charts" checked>
+                                    <label class="form-check-label" for="includeCharts">
+                                        Include Charts & Graphs
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="includeSummary" name="include_summary" checked>
+                                    <label class="form-check-label" for="includeSummary">
+                                        Include Executive Summary
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="exportData" name="export_data">
+                                    <label class="form-check-label" for="exportData">
+                                        Export Raw Data
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Format Selection -->
+                            <div class="mb-4">
+                                <label for="format" class="form-label fw-semibold">Export Format</label>
+                                <select class="form-select" id="format" name="format">
+                                    <option value="pdf" selected>PDF Document</option>
+                                    <option value="excel">Excel Spreadsheet</option>
+                                    <option value="csv">CSV File</option>
+                                    <option value="html">Web Page</option>
+                                </select>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-farm btn-lg">
+                                    <i class="bi bi-file-earmark-arrow-down me-2"></i>Generate Report
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Report Preview -->
+                        <div class="report-preview" id="reportPreview">
+                            <h5 class="mb-3">Report Preview</h5>
+                            <div class="report-summary">
+                                <div class="report-summary-item">
+                                    <span>Report Type:</span>
+                                    <strong id="previewType">Daily Report</strong>
+                                </div>
+                                <div class="report-summary-item">
+                                    <span>Date Range:</span>
+                                    <strong id="previewDateRange">Today</strong>
+                                </div>
+                                <div class="report-summary-item">
+                                    <span>Includes:</span>
+                                    <strong id="previewIncludes">Charts, Summary</strong>
+                                </div>
+                                <div class="report-summary-item">
+                                    <span>Format:</span>
+                                    <strong id="previewFormat">PDF</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container">
+                                <canvas id="previewChart"></canvas>
+                            </div>
+                            
+                            <div class="report-actions">
+                                <button class="btn btn-outline-farm">
+                                    <i class="bi bi-eye me-1"></i>Preview Full Report
+                                </button>
+                                <button class="btn btn-farm">
+                                    <i class="bi bi-download me-1"></i>Download Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Reports Card -->
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div>
+                            <i class="bi bi-clock-history me-2"></i>
+                            Recent Reports
+                        </div>
+                        <button class="btn btn-sm btn-outline-farm">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Report Name</th>
+                                        <th>Type</th>
+                                        <th>Date Range</th>
+                                        <th>Generated On</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Daily_Production_20231020</td>
+                                        <td><span class="badge bg-primary">Daily</span></td>
+                                        <td>Oct 20, 2023</td>
+                                        <td>Oct 20, 2023 14:30</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-farm">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Weekly_Summary_20231016</td>
+                                        <td><span class="badge bg-success">Weekly</span></td>
+                                        <td>Oct 16-20, 2023</td>
+                                        <td>Oct 20, 2023 09:15</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-farm">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Monthly_Analysis_202310</td>
+                                        <td><span class="badge bg-info">Monthly</span></td>
+                                        <td>Oct 1-20, 2023</td>
+                                        <td>Oct 20, 2023 07:45</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-farm">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Set default dates
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            
+            // Set default to today
+            startDate.value = formatDate(today);
+            endDate.value = formatDate(today);
+            
+            // Initialize chart
+            initPreviewChart();
+            
+            // Update preview
+            updateReportPreview();
+        });
+        
+        // Format date as YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Report type selection
+        document.querySelectorAll('.report-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.report-type-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const reportType = this.getAttribute('data-type');
+                document.getElementById('reportType').value = reportType;
+                
+                // Adjust date range based on report type
+                const endDate = new Date();
+                const startDate = new Date();
+                
+                switch(reportType) {
+                    case 'daily':
+                        // Same day
+                        break;
+                    case 'weekly':
+                        startDate.setDate(startDate.getDate() - 7);
+                        break;
+                    case 'monthly':
+                        startDate.setMonth(startDate.getMonth() - 1);
+                        break;
+                }
+                
+                document.getElementById('startDate').value = formatDate(startDate);
+                document.getElementById('endDate').value = formatDate(endDate);
+                
+                updateReportPreview();
+            });
+        });
+        
+        // Update report preview when inputs change
+        document.getElementById('startDate').addEventListener('change', updateReportPreview);
+        document.getElementById('endDate').addEventListener('change', updateReportPreview);
+        document.getElementById('format').addEventListener('change', updateReportPreview);
+        document.getElementById('includeCharts').addEventListener('change', updateReportPreview);
+        document.getElementById('includeSummary').addEventListener('change', updateReportPreview);
+        document.getElementById('exportData').addEventListener('change', updateReportPreview);
+        
+        // Update the report preview
+        function updateReportPreview() {
+            const reportType = document.getElementById('reportType').value;
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            const format = document.getElementById('format').value;
+            
+            // Update preview elements
+            document.getElementById('previewType').textContent = 
+                reportType.charAt(0).toUpperCase() + reportType.slice(1) + ' Report';
+            
+            document.getElementById('previewDateRange').textContent = 
+                formatDateDisplay(startDate) + ' to ' + formatDateDisplay(endDate);
+            
+            document.getElementById('previewFormat').textContent = 
+                format.toUpperCase();
+            
+            // Build includes text
+            const includes = [];
+            if (document.getElementById('includeCharts').checked) includes.push('Charts');
+            if (document.getElementById('includeSummary').checked) includes.push('Summary');
+            if (document.getElementById('exportData').checked) includes.push('Raw Data');
+            
+            document.getElementById('previewIncludes').textContent = 
+                includes.length > 0 ? includes.join(', ') : 'None';
+            
+            // Show preview
+            document.getElementById('reportPreview').style.display = 'block';
+        }
+        
+        // Format date for display (e.g., Oct 20, 2023)
+        function formatDateDisplay(date) {
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+        }
+        
+        // Initialize preview chart
+        function initPreviewChart() {
+            const ctx = document.getElementById('previewChart').getContext('2d');
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Temperature', 'Humidity', 'Soil Moisture', 'Light Intensity', 'CO2 Levels'],
+                    datasets: [{
+                        label: 'Average Values',
+                        data: [24, 65, 42, 78, 420],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(255, 205, 86, 0.7)',
+                            'rgba(153, 102, 255, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(255, 99, 132)',
+                            'rgb(54, 162, 235)',
+                            'rgb(75, 192, 192)',
+                            'rgb(255, 205, 86)',
+                            'rgb(153, 102, 255)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sensor Data Overview'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Form submission handling
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            
+            if (startDate > endDate) {
+                showAlert('Start date cannot be after end date', 'danger');
+                return;
+            }
+            
+            // Simulate report generation
+            showAlert('Report generated successfully!', 'success');
+            
+            // In a real application, you would submit the form here
+            // this.submit();
+        });
+        
+        // Show alert message
+        function showAlert(message, type) {
+            const alertContainer = document.querySelector('.alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertContainer.appendChild(alert);
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

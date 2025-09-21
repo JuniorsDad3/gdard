@@ -1,0 +1,12 @@
+<div class="card">
+    <div class="card-header">Drone Imaging</div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('upload_drone_image', farm_id=farm['id']) }}" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="droneImage" class="form-label">Upload Drone Image</label>
+                <input type="file" class="form-control" id="droneImage" name="drone_image" required>
+            </div>
+            <button type="submit" class="btn btn-farm">Upload Image</button>
+        </form>
+    </div>
+</div>

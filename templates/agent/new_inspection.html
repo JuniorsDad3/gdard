@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}New Inspection - GDARD Smart Agriculture{% endblock %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="mb-0">Schedule New Inspection</h1>
+    <a href="{{ url_for('agent_inspections') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Inspections
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('new_inspection') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.farm_id.label(class="form-label") }}
+                        {{ form.farm_id(class="form-select") }}
+                        {% if form.farm_id.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.farm_id.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.inspection_type.label(class="form-label") }}
+                            {{ form.inspection_type(class="form-select") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.scheduled_date.label(class="form-label") }}
+                            {{ form.scheduled_date(class="form-control", type="datetime-local") }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Priority</label>
+                        <div class="btn-group w-100" role="group">
+                            {% for priority in form.priority %}
+                                {{ priority(class="btn-check") }}
+                                {{ priority.label(class="btn btn-outline-" + 
+                                    ("danger" if priority.data == 'high' else 
+                                     "warning" if priority.data == 'medium' else 
+                                     "success")) }}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows=3) }}
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="reset" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-undo me-1"></i> Reset
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus me-1"></i> Schedule Inspection
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize date picker with minimum date restriction
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateField = document.getElementById('{{ form.scheduled_date.id }}');
+        const now = new Date();
+        const minDate = now.toISOString().slice(0, 16);
+        dateField.min = minDate;
+        
+        // Set default time to next full hour
+        now.setHours(now.getHours() + 1, 0, 0, 0);
+        dateField.value = now.toISOString().slice(0, 16);
+    });
+</script>
+{% endblock %}

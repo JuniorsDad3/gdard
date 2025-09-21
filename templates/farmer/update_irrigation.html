@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Update Irrigation</h2>
+
+    {% if irrigation_systems %}
+        {% for system in irrigation_systems %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-success text-white">
+                Irrigation System #{{ system.id }}
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_irrigation', farm_id=farm.id, system_id=system.id) }}">
+                    <div class="mb-3">
+                        <label class="form-label">System Name</label>
+                        <input type="text" class="form-control" name="name" value="{{ system.name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Water Source</label>
+                        <input type="text" class="form-control" name="source" value="{{ system.source }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Schedule</label>
+                        <textarea class="form-control" name="schedule">{{ system.schedule }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control">
+                            <option value="on" {% if system.status == 'on' %}selected{% endif %}>On</option>
+                            <option value="off" {% if system.status == 'off' %}selected{% endif %}>Off</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Update Irrigation</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-warning">No irrigation records found.</div>
+    {% endif %}
+</div>
+{% endblock %}

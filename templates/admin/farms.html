@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Farm Management{% endblock %}
+{% block header %}Farm Management{% endblock %}
+
+{% block toolbar %}
+    <div class="input-group me-2" style="width: 300px;">
+        <input type="text" class="form-control form-control-sm" placeholder="Search farms...">
+        <button class="btn btn-sm btn-outline-secondary" type="button">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    <button class="btn btn-sm btn-success">
+        <i class="fas fa-plus me-1"></i> Register Farm
+    </button>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Farm ID</th>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Size (ha)</th>
+                        <th>Main Crop</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for farm in farms %}
+                    <tr>
+                        <td>{{ farm.id }}</td>
+                        <td>{{ farm.name }}</td>
+                        <td>{{ farm.location }}</td>
+                        <td>{{ farm.size }}</td>
+                        <td>{{ farm.main_crop }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if farm.status == 'active' else 'secondary' }}">
+                                {{ farm.status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('agent_farm_detail', farm_id=farm.id) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-3">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Previous</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

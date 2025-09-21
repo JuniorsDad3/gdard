@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}{{ farm.name }} Details{% endblock %}
+{% block header %}{{ farm.name }} Details{% endblock %}
+
+{% block toolbar %}
+    <div class="btn-group me-2">
+        <button class="btn btn-sm btn-outline-secondary">Print</button>
+        <button class="btn btn-sm btn-outline-secondary">Export</button>
+    </div>
+    <a href="{{ url_for('agent_farms') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Farms
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <!-- Farm Summary -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i> Basic Information
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Owner:</dt>
+                    <dd class="col-sm-8">{{ owner.username if owner else 'Not specified' }}</dd>
+                    
+                    <dt class="col-sm-4">Location:</dt>
+                    <dd class="col-sm-8">{{ farm.location }}</dd>
+                    
+                    <dt class="col-sm-4">Size:</dt>
+                    <dd class="col-sm-8">{{ farm.size }} hectares</dd>
+                    
+                    <dt class="col-sm-4">Main Crop:</dt>
+                    <dd class="col-sm-8">{{ farm.main_crop }}</dd>
+                    
+                    <dt class="col-sm-4">Soil Type:</dt>
+                    <dd class="col-sm-8">{{ farm.soil_type or 'Not specified' }}</dd>
+                    
+                    <dt class="col-sm-4">Irrigation:</dt>
+                    <dd class="col-sm-8">
+                        {% if farm.irrigation %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compliance Status -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-clipboard-check me-2"></i> Compliance Status
+            </div>
+            <div class="card-body">
+                {% if compliance %}
+                <div class="mb-3">
+                    <h5>Overall Score: {{ compliance.score }}%</h5>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-{{ 'success' if compliance.score >= 80 else 'warning' if compliance.score >= 50 else 'danger' }}" 
+                             style="width: {{ compliance.score }}%">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="alert alert-success">
+                            <small>Last Inspection</small>
+                            <div>{{ compliance.last_inspection or 'Never' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="alert alert-{{ 'warning' if compliance.issues else 'success' }}">
+                            <small>Open Issues</small>
+                            <div>{{ compliance.issues or 'None' }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-3 text-muted">
+                    No compliance data available
+                </div>
+                {% endif %}
+                <a href="#" class="btn btn-sm btn-warning w-100">
+                    <i class="fas fa-search me-1"></i> Schedule Inspection
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sensor Data -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-microchip me-2"></i> Sensor Data</span>
+        <small class="text-muted">Last updated: {{ sensors[0].last_updated if sensors else 'Never' }}</small>
+    </div>
+    <div class="card-body">
+        {% if sensors %}
+        <div class="row text-center">
+            {% for sensor in sensors %}
+            <div class="col-md-3">
+                <h5>{{ sensor.sensor_type|title }}</h5>
+                <div class="display-4">
+                    {{ sensor.last_reading.value }}
+                </div>
+                <small class="text-muted">{{ sensor.last_reading.unit }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-3 text-muted">
+            No sensors registered for this farm
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

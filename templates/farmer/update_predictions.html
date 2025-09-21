@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Update Predictions</h2>
+
+    {% if predictions %}
+        {% for prediction in predictions %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-info text-white">
+                Prediction #{{ prediction.id }}
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_predictions', farm_id=farm.id, prediction_id=prediction.id) }}">
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <input type="text" class="form-control" name="type" value="{{ prediction.type }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Forecast</label>
+                        <textarea class="form-control" name="forecast">{{ prediction.forecast }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confidence</label>
+                        <input type="text" class="form-control" name="confidence" value="{{ prediction.confidence }}">
+                    </div>
+                    <button type="submit" class="btn btn-info">Update Prediction</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-warning">No predictions found.</div>
+    {% endif %}
+</div>
+{% endblock %}

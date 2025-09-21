@@ -1,0 +1,21 @@
+<div class="card">
+    <div class="card-header">AI Yield Prediction</div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('update_predictions', farm_id=farm['id']) }}">
+            <div class="mb-3">
+                <label for="cropType" class="form-label">Crop Type</label>
+                <input type="text" class="form-control" id="cropType" name="crop" required>
+            </div>
+            <div class="mb-3">
+                <label for="dateRange" class="form-label">Date Range</label>
+                <input type="text" class="form-control" id="dateRange" name="date_range" placeholder="e.g. 2025-09-01 to 2025-09-30">
+            </div>
+            <button type="submit" class="btn btn-farm">Generate Prediction</button>
+        </form>
+        {% if prediction %}
+        <hr>
+        <p>Predicted Yield: <strong>{{ prediction.value }} kg/ha</strong></p>
+        <p>Confidence: <strong>{{ prediction.confidence }}%</strong></p>
+        {% endif %}
+    </div>
+</div>

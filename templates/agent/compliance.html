@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Compliance Dashboard - GDARD Smart Agriculture{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Compliance Management</h2>
+    
+    <!-- Compliance Status Cards -->
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Certified Farms</h5>
+                    <p class="card-text">85% compliance rate</p>
+                    <a href="#" class="btn btn-light btn-sm">View Details</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Audits</h5>
+                    <p class="card-text">12 farms require review</p>
+                    <a href="#" class="btn btn-dark btn-sm">Take Action</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Violations</h5>
+                    <p class="card-text">3 unresolved cases</p>
+                    <a href="#" class="btn btn-light btn-sm">Resolve Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compliance Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5>Recent Compliance Records</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Farm ID</th>
+                        <th>Status</th>
+                        <th>Last Audit</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>FARM-1001</td>
+                        <td><span class="badge bg-success">Certified</span></td>
+                        <td>2024-05-15</td>
+                        <td><a href="#" class="btn btn-sm btn-outline-primary">View</a></td>
+                    </tr>
+                    <tr>
+                        <td>FARM-1002</td>
+                        <td><span class="badge bg-warning">Pending</span></td>
+                        <td>2024-06-02</td>
+                        <td><a href="#" class="btn btn-sm btn-outline-warning">Review</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

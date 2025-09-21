@@ -1,0 +1,16 @@
+<div class="card irrigation-control">
+    <div class="card-header">Irrigation Control</div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('update_irrigation', farm_id=farm['id']) }}">
+            <div class="mb-3">
+                <label for="irrigationSchedule" class="form-label">Schedule (hours/day)</label>
+                <input type="number" class="form-control" id="irrigationSchedule" name="schedule" value="{{ farm.get('irrigation', '') }}">
+            </div>
+            <button type="submit" class="btn btn-farm">Update Schedule</button>
+        </form>
+        <hr>
+        <form method="POST" action="{{ url_for('trigger_irrigation') }}">
+            <button type="submit" class="btn btn-success">Start Irrigation Now</button>
+        </form>
+    </div>
+</div>

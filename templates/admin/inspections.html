@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Farm Inspections - GDARD Smart Agriculture{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Farm Inspections</h2>
+    
+    <!-- Inspection Filters -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select">
+                            <option>All</option>
+                            <option>Pending</option>
+                            <option>Completed</option>
+                            <option>Failed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Date Range</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="col-md-3 align-self-end">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Inspections Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5>Upcoming Inspections</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Farm ID</th>
+                        <th>Inspector</th>
+                        <th>Scheduled Date</th>
+                        <th>Priority</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>FARM-2005</td>
+                        <td>John Doe</td>
+                        <td>2024-06-20</td>
+                        <td><span class="badge bg-danger">High</span></td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-success">Start</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary">Reschedule</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>FARM-2010</td>
+                        <td>Jane Smith</td>
+                        <td>2024-06-22</td>
+                        <td><span class="badge bg-warning">Medium</span></td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-success">Start</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

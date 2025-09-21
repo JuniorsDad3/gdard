@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Farm Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --farm-green: #28a745;
+            --farm-green-light: #5cb85c;
+            --farm-green-lighter: #7cc47c;
+            --farm-dark: #1e7e34;
+            --farm-brown: #8B4513;
+            --farm-gold: #FFD700;
+            --farm-light: #f8f9fa;
+            --farm-gray: #6c757d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7f9;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
+            background: linear-gradient(to bottom, var(--farm-green), var(--farm-dark));
+            color: white;
+            overflow-y: auto;
+            padding-bottom: 1rem;
+            z-index: 1000;
+            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar.collapsed .sidebar-text,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .user-info {
+            display: none !important;
+        }
+
+        .sidebar.collapsed .nav-link {
+            text-align: center;
+            padding: 0.75rem 0.5rem;
+        }
+
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 5px;
+            border-left: 3px solid transparent;
+            border-radius: 0;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid white;
+        }
+
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+            transition: margin-right 0.3s;
+        }
+
+        .user-section {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar .sidebar-text,
+            .sidebar .logo-text,
+            .sidebar .user-info {
+                display: none !important;
+            }
+            
+            .sidebar .nav-link {
+                text-align: center;
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .sidebar .nav-link i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+
+        /* Cards */
+        .card-farm {
+            border-left: 4px solid var(--farm-green);
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+        }
+
+        .card-farm:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-icon {
+            font-size: 2rem;
+            color: var(--farm-green);
+            margin-bottom: 15px;
+        }
+
+        /* Sensor cards */
+        .sensor-card {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+
+        .sensor-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .sensor-temperature { border-bottom: 4px solid #dc3545; }
+        .sensor-humidity { border-bottom: 4px solid #17a2b8; }
+        .sensor-moisture { border-bottom: 4px solid #ffc107; }
+        .sensor-light { border-bottom: 4px solid #28a745; }
+
+        /* Progress bars */
+        .progress {
+            height: 8px;
+        }
+
+        /* Notifications */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Buttons */
+        .btn-farm {
+            background-color: var(--farm-green);
+            color: white;
+        }
+
+        .btn-farm:hover {
+            background-color: var(--farm-dark);
+            color: white;
+        }
+
+        /* Toggle sidebar button */
+        .toggle-sidebar {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1001;
+            background-color: var(--farm-green);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Irrigation control */
+        .irrigation-control {
+            background: linear-gradient(to right, #e6f7ee, #c3e6cb);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+        
+        /* Task list */
+        .task-item {
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .task-item:hover {
+            background-color: #f8f9fa;
+            border-left: 3px solid var(--farm-green);
+        }
+        
+        .task-priority-high {
+            border-left: 3px solid #dc3545 !important;
+        }
+        
+        .task-priority-medium {
+            border-left: 3px solid #ffc107 !important;
+        }
+        
+        /* Weather widget */
+        .weather-widget {
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header text-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/3079/3079165.png" alt="Farm Logo" class="img-fluid mb-2" style="max-height: 50px;">
+        <h5 class="logo-text mb-0">Smart Farm</h5>
+        <small class="logo-text text-white-50">Farmer Dashboard</small>
+    </div>
+
+    <div class="user-section">
+        <div class="d-flex align-items-center">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="rounded-circle me-2" width="40">
+            <div class="user-info">
+                <div class="fw-bold">{{ user.username if user else 'John Farmer' }}</div>
+                <small class="text-white-50">Premium Member</small>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('farmer_dashboard') }}">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="sidebar-text">Dashboard</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('sensors', farm_id=farm.id) }}">
+                <i class="fas fa-microchip"></i>
+                <span class="sidebar-text">Sensor Data</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('irrigation', farm_id=farm.id) }}">
+                <i class="fas fa-tint"></i>
+                <span class="sidebar-text">Irrigation</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('predictions', farm_id=farm.id) }}">
+                <i class="fas fa-brain"></i>
+                <span class="sidebar-text">Predictions</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('drone', farm_id=farm.id) }}">
+                <i class="fas fa-drone"></i>
+                <span class="sidebar-text">Drone Imaging</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('reports', farm_id=farm.id) }}">
+                <i class="fas fa-chart-bar"></i>
+                <span class="sidebar-text">Reports</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('settings') }}">
+                <i class="fas fa-cog"></i>
+                <span class="sidebar-text">Settings</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="mt-auto px-3 py-2">
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm w-100">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="sidebar-text">Logout</span>
+        </a>
+    </div>
+
+    <!-- Toggle Sidebar Button -->
+    <button class="toggle-sidebar" id="toggleSidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<!-- Main Content Header -->
+<div class="main-content" id="mainContent">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2" id="tab-title">Dashboard</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <button class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <button class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-calendar"></i> Today
+                </button>
+            </div>
+            <button class="btn btn-sm btn-success" id="refreshData">
+                <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+        </div>
+    </div>
+
+    <!-- Farm Selection -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body py-2">
+                    <div class="d-flex align-items-center">
+                        <label for="farmSelect" class="form-label mb-0 me-2">Active Farm:</label>
+                        <select class="form-select form-select-sm w-auto" id="farmSelect">
+                            {% for f in farms %}
+                                <option value="{{ f.id }}" {% if f.id == farm.id %}selected{% endif %}>{{ f.name }} - {{ f.location }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-sm btn-outline-primary ms-3">
+                            <i class="fas fa-plus"></i> Add New Farm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Script -->
+<script>
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+
+    toggleSidebar.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('expanded');
+    });
+</script>
+
+
+<!-- Real-time Sensor Data -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-microchip me-2"></i> IoT Sensor Network - Real-time Data</h5>
+                <span class="badge bg-warning">Live</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="sensor-card sensor-temperature">
+                            <i class="fas fa-temperature-high fa-2x text-danger"></i>
+                            <div class="sensor-value" id="temperatureValue">{{ iot_data.get('temperature', {}).get('value', 'N/A') }}°C</div>
+                            <p>Temperature</p>
+                            <div class="progress">
+                                <div class="progress-bar bg-danger" id="tempBar" style="width: {{ iot_data.get('temperature', {}).get('percent', 0) }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="sensor-card sensor-humidity">
+                            <i class="fas fa-tint fa-2x text-info"></i>
+                            <div class="sensor-value" id="humidityValue">{{ iot_data.get('humidity', {}).get('value', 'N/A') }}%</div>
+                            <p>Humidity</p>
+                            <div class="progress">
+                                <div class="progress-bar bg-info" id="humidityBar" style="width: {{ iot_data.get('humidity', {}).get('percent', 0) }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="sensor-card sensor-moisture">
+                            <i class="fas fa-seedling fa-2x text-warning"></i>
+                            <div class="sensor-value" id="moistureValue">{{ iot_data.get('moisture', {}).get('value', 'N/A') }}%</div>
+                            <p>Soil Moisture</p>
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" id="moistureBar" style="width: {{ iot_data.get('moisture', {}).get('percent', 0) }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="sensor-card sensor-light">
+                            <i class="fas fa-sun fa-2x text-success"></i>
+                            <div class="sensor-value" id="lightValue">{{ iot_data.get('light', {}).get('value', 'N/A') }} lux</div>
+                            <p>Light Intensity</p>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" id="lightBar" style="width: {{ iot_data.get('light', {}).get('percent', 0) }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        Last updated: <span id="lastUpdated">{{ iot_data.get('last_updated', 'Just now') }}</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Sensor Data Form -->
+<div class="row mb-4" id="sensors-update">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-microchip me-2"></i> Update Sensor Data
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_sensors', farm_id=farm.id) }}">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="temperature" class="form-label">Temperature (°C)</label>
+                            <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" value="{{ iot_data.get('temperature', {}).get('value', '') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="humidity" class="form-label">Humidity (%)</label>
+                            <input type="number" step="0.1" class="form-control" id="humidity" name="humidity" value="{{ iot_data.get('humidity', {}).get('value', '') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="moisture" class="form-label">Soil Moisture (%)</label>
+                            <input type="number" step="0.1" class="form-control" id="moisture" name="moisture" value="{{ iot_data.get('moisture', {}).get('value', '') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="light" class="form-label">Light Intensity (lux)</label>
+                            <input type="number" step="1" class="form-control" id="light" name="light" value="{{ iot_data.get('light', {}).get('value', '') }}">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Update Sensors</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Irrigation Control Section -->
+<div class="row mb-4" id="irrigation">
+    <div class="col-md-6">
+        <div class="card irrigation-control">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-tint me-2"></i> Irrigation Control
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_irrigation', farm_id=farm.id) }}">
+                    <div class="mb-3">
+                        <label for="irrigation_status" class="form-label">Irrigation Status</label>
+                        <select class="form-select" id="irrigation_status" name="irrigation_status">
+                            <option value="off" {% if farm.irrigation == 'off' %}selected{% endif %}>Off</option>
+                            <option value="on" {% if farm.irrigation == 'on' %}selected{% endif %}>On</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="water_volume" class="form-label">Water Volume (Liters)</label>
+                        <input type="number" class="form-control" id="water_volume" name="water_volume" value="{{ farm.water_volume if farm else '' }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-play"></i> Apply Irrigation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Predictions Input Section -->
+<div class="row mb-4" id="predictions">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-brain me-2"></i> AI Predictions Input
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_predictions', farm_id=farm.id) }}">
+                    <div class="mb-3">
+                        <label for="fertilizer" class="form-label">Fertilizer Applied (kg/ha)</label>
+                        <input type="number" step="0.1" class="form-control" id="fertilizer" name="fertilizer" value="{{ predictions.fertilizer if predictions else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="pesticide" class="form-label">Pesticide Applied (L/ha)</label>
+                        <input type="number" step="0.1" class="form-control" id="pesticide" name="pesticide" value="{{ predictions.pesticide if predictions else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="irrigation_level" class="form-label">Irrigation Level (mm)</label>
+                        <input type="number" step="0.1" class="form-control" id="irrigation_level" name="irrigation_level" value="{{ predictions.irrigation_level if predictions else '' }}">
+                    </div>
+                    <button type="submit" class="btn btn-warning"><i class="fas fa-robot"></i> Update Predictions</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Drone Imaging Submission Section -->
+<div class="row mb-4" id="drone">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-drone me-2"></i> Drone Imaging Submission
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_drone', farm_id=farm.id) }}">
+                    <div class="mb-3">
+                        <label for="vegetation_health" class="form-label">Vegetation Health (%)</label>
+                        <input type="number" step="0.1" class="form-control" id="vegetation_health" name="vegetation_health" value="{{ drone_data.vegetation_health if drone_data else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="issues_detected" class="form-label">Detected Issues</label>
+                        <textarea class="form-control" id="issues_detected" name="issues_detected" rows="3">{{ drone_data.issues_detected if drone_data else '' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-info"><i class="fas fa-upload"></i> Submit Drone Data</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Farm Reports Section -->
+<div class="row mb-4" id="reports">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <i class="fas fa-chart-bar me-2"></i> Add Farm Report
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_reports', farm_id=farm.id) }}">
+                    <div class="mb-3">
+                        <label for="report_title" class="form-label">Report Title</label>
+                        <input type="text" class="form-control" id="report_title" name="report_title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="report_content" class="form-label">Report Content</label>
+                        <textarea class="form-control" id="report_content" name="report_content" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-secondary"><i class="fas fa-save"></i> Submit Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Settings Section -->
+<div class="row mb-4" id="settings">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <i class="fas fa-cog me-2"></i> Account Settings
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('settings') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ user.username if user else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email if user else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="password" name="password">
+                        <small class="text-muted">Leave blank to keep current password</small>
+                    </div>
+                    <button type="submit" class="btn btn-dark">
+                        <i class="fas fa-save"></i> Update Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+// ========================
+// Sidebar toggle
+// ========================
+const toggleSidebar = document.getElementById('toggleSidebar');
+const sidebar = document.getElementById('sidebar');
+const mainContent = document.getElementById('mainContent');
+
+toggleSidebar.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    mainContent.classList.toggle('expanded');
+});
+
+// ========================
+// Helpers
+// ========================
+function updateLastUpdated() {
+    const now = new Date();
+    const formatted = now.toLocaleString('en-GB', { hour12: false });
+    document.getElementById('lastUpdated').textContent = formatted;
+}
+
+// Render sensor values into UI
+function renderSensors(sensors) {
+    const container = document.getElementById('sensors-container');
+    container.innerHTML = '';
+
+    if (!sensors || sensors.length === 0) {
+        container.textContent = 'No sensors available.';
+        return;
+    }
+
+    sensors.forEach(sensor => {
+        const sensorDiv = document.createElement('div');
+        sensorDiv.className = "mb-2 p-2 border rounded";
+        sensorDiv.textContent = `${sensor.name || sensor.id}: ${sensor.last_reading || 'No data'}`;
+        container.appendChild(sensorDiv);
+    });
+
+    updateLastUpdated();
+}
+
+// ========================
+// API Fetchers
+// ========================
+function loadFarmSensors(farmId) {
+    fetch(`/api/farm/${farmId}/sensors`)
+        .then(res => {
+            if (!res.ok) throw new Error("Failed to fetch sensors");
+            return res.json();
+        })
+        .then(data => {
+            console.log("Farm Sensors:", data);
+            renderSensors(data.sensors);
+        })
+        .catch(err => console.error("Error fetching sensors:", err));
+}
+
+function loadSensor(sensorId) {
+    fetch(`/api/sensor/${sensorId}`)
+        .then(res => res.json())
+        .then(data => console.log("Single Sensor:", data.sensor))
+        .catch(err => console.error("Error fetching sensor:", err));
+}
+
+function loadWeather(location) {
+    fetch(`/api/weather/${location}`)
+        .then(res => res.json())
+        .then(data => console.log("Weather:", data))
+        .catch(err => console.error("Error fetching weather:", err));
+}
+
+function loadMarket(crop) {
+    fetch(`/api/market/${crop}`)
+        .then(res => res.json())
+        .then(data => console.log("Market:", data))
+        .catch(err => console.error("Error fetching market:", err));
+}
+
+// ========================
+// Init
+// ========================
+const farmId = {{ farm.id | tojson }};
+
+// Load sensors on page load
+loadFarmSensors(farmId);
+
+// Refresh button
+document.getElementById('refreshData').addEventListener('click', () => {
+    loadFarmSensors(farmId);
+});
+
+// Sidebar navigation updates page title
+document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        const title = link.querySelector('.sidebar-text').textContent;
+        document.getElementById('tab-title').textContent = title;
+    });
+});
+</script>

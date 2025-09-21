@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - GDARD Smart Agriculture{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Agricultural Reports</h2>
+    
+    <!-- Report Type Selector -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Select Report Type</label>
+                    <select class="form-select">
+                        <option>Compliance Summary</option>
+                        <option>Inspection Logs</option>
+                        <option>Violation Trends</option>
+                        <option>Yield Analysis</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">From</label>
+                    <input type="date" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">To</label>
+                    <input type="date" class="form-control">
+                </div>
+            </div>
+            <button class="btn btn-primary mt-3">Generate Report</button>
+        </div>
+    </div>
+
+    <!-- Report Visualization Placeholder -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5>Compliance Overview (2024)</h5>
+        </div>
+        <div class="card-body">
+            <div class="text-center py-5 bg-light">
+                <p class="text-muted">[Chart: Compliance rates per district]</p>
+                <!-- Replace with actual charts (e.g., Chart.js) -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Export Data</h5>
+            <button class="btn btn-outline-success me-2"><i class="bi bi-file-excel"></i> Excel</button>
+            <button class="btn btn-outline-primary me-2"><i class="bi bi-file-pdf"></i> PDF</button>
+            <button class="btn btn-outline-secondary"><i class="bi bi-printer"></i> Print</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
