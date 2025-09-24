@@ -1,26 +1,27 @@
-# Use an official Python runtime as a parent image
+# Use official Python runtime
 FROM python:3.11-slim
 
-# Set environment variables
+# Environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV EXCEL_DB_PATH=/data/GDARD.xlsx
 
-# Create working directory
+# Set working directory
 WORKDIR /app
 
-# Copy project files into the container
+# Copy project files
 COPY . /app
 
 # Install dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Ensure GDARD.xlsx exists inside the container
-RUN mkdir -p /data && cp app/data/GDARD.xlsx /data/
+# Ensure /data directory exists and copy Excel DB
+RUN mkdir -p /data
+COPY app/data/GDARD.xlsx /data/GDARD.xlsx
 
-
-# Set environment variables for Flask
-ENV EXCEL_DB_PATH=/data/GDARD.xlsx
+# Expose port
+EXPOSE 5000
 
 # Default command to run the app
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
